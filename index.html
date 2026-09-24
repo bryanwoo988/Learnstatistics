@@ -1,0 +1,2072 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>统计学自学台 · Beginning Statistics 11章</title>
+<meta name="theme-color" content="#F1F3EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1513" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Interactive self-study app for Beginning Statistics (Shafer & Zhang), 11 chapters, bilingual 中文 / English.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Stats">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F3EC; --surface:#FFFFFF; --surface2:#E8EDE3;
+  --ink:#1A2622; --ink-soft:#4C5C55; --ink-faint:#7D8C84;
+  --jade:#1F6554; --jade-soft:#D6E7DF;
+  --marker:#A8325A; --marker-soft:#F7DDE5;
+  --amber:#8A6100; --amber-soft:#F5E7C3;
+  --line:#C9D2C6; --line-soft:#DFE5DA;
+  --grid:rgba(31,101,84,.10);
+  --sans:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  --serif:"Spectral","Songti SC","Noto Serif CJK SC",Georgia,serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1513; --surface:#18211E; --surface2:#212C28;
+    --ink:#E7EDE8; --ink-soft:#AFBCB5; --ink-faint:#7E8C85;
+    --jade:#68CFB2; --jade-soft:#1D332C;
+    --marker:#FF88AC; --marker-soft:#3A2028;
+    --amber:#E0B34A; --amber-soft:#33290F;
+    --line:#2C3A35; --line-soft:#232E2A;
+    --grid:rgba(104,207,178,.10);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1513; --surface:#18211E; --surface2:#212C28;
+  --ink:#E7EDE8; --ink-soft:#AFBCB5; --ink-faint:#7E8C85;
+  --jade:#68CFB2; --jade-soft:#1D332C;
+  --marker:#FF88AC; --marker-soft:#3A2028;
+  --amber:#E0B34A; --amber-soft:#33290F;
+  --line:#2C3A35; --line-soft:#232E2A;
+  --grid:rgba(104,207,178,.10);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.68;
+  -webkit-font-smoothing:antialiased;
+}
+img,canvas,svg{max-width:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--marker);outline-offset:2px;border-radius:4px}
+
+/* ---------- layout ---------- */
+.wrap{max-width:38rem;margin:0 auto;padding:0 18px}
+header.top{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:30;
+  background:var(--bg);
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.top-in{display:flex;align-items:center;gap:12px;min-height:52px}
+.brand{font-weight:600;font-size:15px;letter-spacing:.01em}
+.brand span{color:var(--ink-faint);font-weight:400}
+.top-btn{
+  margin-left:auto;background:none;border:1px solid var(--line);
+  border-radius:999px;padding:5px 12px;font-size:13px;color:var(--ink-soft);
+}
+main{padding-bottom:96px;min-height:70vh}
+nav.tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.tabs-in{display:flex;max-width:38rem;margin:0 auto}
+.tab{
+  flex:1;background:none;border:0;padding:10px 4px 12px;
+  font-size:12px;color:var(--ink-faint);display:flex;flex-direction:column;
+  align-items:center;gap:3px;
+}
+.tab b{font-size:17px;font-weight:500;line-height:1}
+.tab[aria-current="true"]{color:var(--jade);font-weight:600}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- hero ---------- */
+.hero{padding:26px 0 8px}
+.hero h1{
+  font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.24;
+  margin:0 0 10px;letter-spacing:-.01em;
+}
+.hero p{margin:0 0 16px;color:var(--ink-soft);font-size:15px;max-width:30rem}
+.hero-canvas{
+  width:100%;height:150px;display:block;border-radius:2px;
+  background:
+    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/100% 25px,
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/25px 100%,
+    var(--surface);
+  border:1px solid var(--line-soft);
+}
+.hero-cap{font-size:12.5px;color:var(--ink-faint);margin:8px 0 0}
+.resume{
+  display:flex;align-items:center;gap:10px;width:100%;
+  margin:18px 0 4px;padding:12px 14px;text-align:left;
+  background:var(--jade-soft);border:1px solid transparent;border-radius:12px;
+  color:var(--ink);font-size:14px;
+}
+.resume b{color:var(--jade)}
+
+/* ---------- chapter ladder ---------- */
+.sec-head{
+  display:flex;align-items:baseline;gap:10px;
+  margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);
+}
+.sec-head h2{font-size:15px;font-weight:600;margin:0}
+.sec-head em{font-style:normal;font-size:12.5px;color:var(--ink-faint);margin-left:auto}
+.ladder{list-style:none;margin:0;padding:0}
+.ch{
+  display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;
+  width:100%;text-align:left;background:none;border:0;
+  padding:13px 2px;border-bottom:1px solid var(--line-soft);
+}
+.ch-no{
+  font-family:var(--serif);font-size:19px;font-weight:600;color:var(--jade);
+  text-align:center;font-feature-settings:"tnum";
+}
+.ch-t{min-width:0}
+.ch-t b{display:block;font-weight:500;font-size:15.5px;line-height:1.35}
+.ch-t i{display:block;font-style:normal;font-size:12.5px;color:var(--ink-faint);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ring{width:30px;height:30px;flex:0 0 auto}
+.ring circle{fill:none;stroke-width:3.5}
+.ring .bg{stroke:var(--line-soft)}
+.ring .fg{stroke:var(--jade);stroke-linecap:round;transition:stroke-dasharray .4s ease}
+.ring text{font-size:11px;fill:var(--ink-faint);font-family:var(--sans)}
+
+/* ---------- chapter view ---------- */
+.back{
+  background:none;border:0;padding:16px 0 4px;color:var(--jade);
+  font-size:14px;font-weight:500;
+}
+.ch-hero{padding:4px 0 6px}
+.ch-hero .kicker{font-size:12.5px;color:var(--ink-faint);margin:0}
+.ch-hero h1{font-family:var(--serif);font-size:26px;font-weight:600;margin:4px 0 6px;line-height:1.26}
+.ch-hero p{margin:0;color:var(--ink-soft);font-size:14.5px}
+.lesson{
+  background:var(--surface);border:1px solid var(--line-soft);border-radius:14px;
+  padding:16px 16px 14px;margin:14px 0;
+}
+.lesson > h3{
+  font-size:16px;margin:0 0 4px;font-weight:600;display:flex;gap:8px;align-items:baseline;
+}
+.lesson > h3 .n{font-family:var(--serif);color:var(--jade);font-size:14px;font-feature-settings:"tnum"}
+.lesson .en{font-size:12.5px;color:var(--ink-faint);margin:0 0 10px}
+.lesson p{margin:9px 0}
+.lesson ul{margin:9px 0;padding-left:20px}
+.lesson li{margin:4px 0}
+.k{color:var(--jade);font-weight:600}
+.t-en{color:var(--ink-faint);font-size:.9em}
+.fml{
+  font-family:var(--serif);font-size:17px;line-height:1.9;
+  background:var(--surface2);border-left:3px solid var(--jade);
+  padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0;overflow-x:auto;
+}
+.fml .lbl{display:block;font-family:var(--sans);font-size:12px;color:var(--ink-faint);margin-bottom:2px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 5px}
+.frac span:last-child{padding:0 5px}
+.eg,.warn{border-radius:10px;padding:11px 13px;margin:12px 0;font-size:14.5px}
+.eg{background:var(--amber-soft)}
+.warn{background:var(--marker-soft)}
+.eg b,.warn b{display:block;font-size:12.5px;letter-spacing:.02em;margin-bottom:3px}
+.eg b{color:var(--amber)}
+.warn b{color:var(--marker)}
+.done-btn{
+  width:100%;margin-top:12px;padding:11px;border-radius:10px;
+  border:1px solid var(--jade);background:none;color:var(--jade);
+  font-size:14px;font-weight:600;
+}
+.done-btn[data-done="1"]{background:var(--jade);color:var(--surface);border-color:var(--jade)}
+
+/* ---------- demo ---------- */
+.demo{
+  margin:14px 0 4px;padding:12px;border-radius:12px;
+  background:var(--surface2);border:1px dashed var(--line);
+}
+.demo h4{margin:0 0 2px;font-size:13.5px;font-weight:600}
+.demo .hint{margin:0 0 10px;font-size:12.5px;color:var(--ink-faint)}
+.demo canvas{
+  width:100%;display:block;border-radius:8px;background:var(--surface);
+  border:1px solid var(--line-soft);touch-action:none;
+}
+.ctrl{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;flex-wrap:wrap}
+.ctrl label{display:flex;align-items:center;gap:8px;flex:1 1 180px;min-width:0}
+.ctrl input[type=range]{flex:1;min-width:90px;accent-color:var(--jade)}
+.ctrl .val{font-family:var(--serif);font-weight:600;min-width:3.2em;text-align:right;
+  font-feature-settings:"tnum";color:var(--jade)}
+.btn-s{
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:7px 12px;font-size:13px;
+}
+.btn-s.pri{background:var(--jade);border-color:var(--jade);color:var(--surface);font-weight:600}
+.readout{
+  margin-top:10px;font-family:var(--serif);font-size:14px;
+  display:flex;gap:14px;flex-wrap:wrap;color:var(--ink-soft);
+  font-feature-settings:"tnum";
+}
+.readout b{color:var(--ink);font-weight:600}
+.seg{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.seg button{background:var(--surface);border:1px solid var(--line);border-radius:999px;
+  padding:5px 11px;font-size:12.5px}
+.seg button[aria-pressed="true"]{background:var(--jade);border-color:var(--jade);color:var(--surface)}
+table.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+table.tbl th,table.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+table.tbl th{background:var(--surface2);font-weight:600}
+table.tbl input{width:4.2em;font:inherit;padding:2px 4px;border:1px solid var(--line);
+  border-radius:4px;background:var(--surface);color:var(--ink);text-align:center}
+
+/* ---------- quiz ---------- */
+.quiz-cta{
+  display:block;width:100%;margin:18px 0 10px;padding:14px;border-radius:12px;
+  background:var(--marker);color:#fff;border:0;font-size:15px;font-weight:600;
+}
+.qbar{display:flex;align-items:center;gap:10px;margin:14px 0 6px;font-size:13px;color:var(--ink-faint)}
+.qbar .track{flex:1;height:5px;background:var(--line-soft);border-radius:3px;overflow:hidden}
+.qbar .fill{height:100%;background:var(--marker);width:0;transition:width .3s}
+.qcard{background:var(--surface);border:1px solid var(--line-soft);border-radius:14px;padding:16px;margin:10px 0}
+.qcard .stem{font-size:16px;margin:0 0 14px;line-height:1.6}
+.opt{
+  display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  font-size:14.5px;line-height:1.5;transition:background .15s,border-color .15s;
+}
+.opt .mk{font-family:var(--serif);font-weight:600;color:var(--ink-faint);margin-right:8px}
+.opt[data-state="right"]{border-color:var(--jade);background:var(--jade-soft)}
+.opt[data-state="right"] .mk{color:var(--jade)}
+.opt[data-state="wrong"]{border-color:var(--marker);background:var(--marker-soft)}
+.opt[data-state="wrong"] .mk{color:var(--marker)}
+.opt:disabled{cursor:default;opacity:1}
+.expl{margin:12px 0 0;padding:12px 13px;border-radius:10px;background:var(--surface2);font-size:14px}
+.expl b{color:var(--jade)}
+.expl .trap{display:block;margin-top:8px;color:var(--marker);font-weight:600;font-size:12.5px}
+.expl .trap + span{font-size:14px}
+.score{
+  text-align:center;padding:26px 16px;background:var(--surface);
+  border:1px solid var(--line-soft);border-radius:14px;margin:16px 0;
+}
+.score .big{font-family:var(--serif);font-size:46px;font-weight:600;color:var(--jade);line-height:1}
+.score p{color:var(--ink-soft);margin:8px 0 16px}
+
+/* ---------- formulas / progress ---------- */
+.fcard{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;
+  padding:14px;margin:12px 0}
+.fcard h3{margin:0 0 6px;font-size:14.5px}
+.fcard .fml{margin:8px 0}
+.prow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px}
+.prow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .sc{font-family:var(--serif);font-weight:600;font-feature-settings:"tnum"}
+.muted{color:var(--ink-faint);font-size:13.5px}
+.danger{background:none;border:1px solid var(--marker);color:var(--marker);
+  border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:18px}
+.foot{padding:24px 0 8px;font-size:12px;color:var(--ink-faint);line-height:1.6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap top-in">
+  <span class="brand">统计学自学台 <span>· 11 章</span></span>
+  <button class="top-btn" id="themeBtn">切换深浅</button>
+</div></header>
+
+<main>
+  <!-- HOME -->
+  <section class="view on" id="v-home"><div class="wrap">
+    <div class="hero">
+      <h1>不必一页一页读，<br>一章一章练就好。</h1>
+      <p>照《Beginning Statistics》（Shafer &amp; Zhang）的 11 章顺序编排：每节先看短讲解，动手玩图，再做选择题。例子都用书里那类题材。</p>
+      <canvas class="hero-canvas" id="heroCv" width="640" height="300"></canvas>
+      <p class="hero-cap">上图：一组样本的点图，绿线是样本均值 x̄，两侧虚线是 ±1 个标准差 s。</p>
+      <button class="resume" id="resumeBtn" hidden></button>
+    </div>
+    <div class="sec-head"><h2>目录</h2><em id="allProg"></em></div>
+    <ul class="ladder" id="ladder"></ul>
+    <p class="foot">内容为按该书大纲自行撰写的中文讲解与练习题，非原书译文。数学符号：x̄ 样本均值、μ 总体均值、s 样本标准差、σ 总体标准差。</p>
+  </div></section>
+
+  <!-- CHAPTER -->
+  <section class="view" id="v-ch"><div class="wrap" id="chBody"></div></section>
+
+  <!-- QUIZ -->
+  <section class="view" id="v-quiz"><div class="wrap" id="quizBody"></div></section>
+
+  <!-- FORMULAS -->
+  <section class="view" id="v-fml"><div class="wrap">
+    <div class="hero" style="padding-bottom:0">
+      <h1 style="font-size:24px">公式速查</h1>
+      <p>考前只看这一页也够用。</p>
+    </div>
+    <div id="fmlBody"></div>
+  </div></section>
+
+  <!-- PROGRESS -->
+  <section class="view" id="v-me"><div class="wrap">
+    <div class="hero" style="padding-bottom:0">
+      <h1 style="font-size:24px">我的进度</h1>
+      <p id="meSum" class="muted"></p>
+    </div>
+    <div id="meBody"></div>
+    <button class="danger" id="wipeBtn">清空全部进度</button>
+  </div></section>
+</main>
+
+<nav class="tabs"><div class="tabs-in">
+  <button class="tab" data-go="home" aria-current="true"><b>☰</b>目录</button>
+  <button class="tab" data-go="fml"><b>∑</b>公式</button>
+  <button class="tab" data-go="me"><b>◔</b>进度</button>
+</div></nav>
+
+<script>window.BOOK=[];</script>
+<script>
+BOOK.push(
+{n:1,zh:"导论",en:"Introduction",blurb:"先搞清楚：我们在量什么、量谁、量出来的数字叫什么名字。这一章的词汇会贯穿全书。",
+ secs:[
+ {no:"1.1",t:"基本定义",en:"Basic Definitions and Concepts",html:`
+  <p>统计学做的事很简单：<span class="k">从一小部分数据，推断一大群体的情况</span>。所以先分清两边。</p>
+  <ul>
+   <li><span class="k">总体 <span class="t-en">(population)</span></span>：你真正想了解的全部对象。例：全校 4000 名学生的考试分数。</li>
+   <li><span class="k">样本 <span class="t-en">(sample)</span></span>：你实际拿到手的那一小部分。例：抽到的 50 名学生。</li>
+   <li><span class="k">参数 <span class="t-en">(parameter)</span></span>：描述总体的数字，用希腊字母：μ、σ、p。它是固定的，但通常不知道。</li>
+   <li><span class="k">统计量 <span class="t-en">(statistic)</span></span>：由样本算出来的数字：x̄、s、p̂。它会随样本而变。</li>
+  </ul>
+  <p>变量 <span class="t-en">(variable)</span> 是你记录的那个特征。分两种：</p>
+  <ul>
+   <li><span class="k">定性/类别型</span>：性别、血型、品牌 — 只能归类，不能算平均。</li>
+   <li><span class="k">定量/数值型</span>：身高、分数、寿命 — 可以算平均。再分离散（可数：孩子数）与连续（可测：重量）。</li>
+  </ul>
+  <div class="eg"><b>例</b>要估计全校学生的平均分。μ = 全校平均分（参数，未知）；随机抽 50 人算出 x̄ = 68.4（统计量，已知）。我们用 68.4 去猜 μ。</div>
+  <div class="warn"><b>常错</b>"样本"指的是那一组个体或数据，不是"抽样这件事"。另外：x̄ 永远是已知的算出来的，μ 永远是要猜的那个。</div>`},
+ {no:"1.2",t:"全书在做两件事",en:"Overview",html:`
+  <p>整本书只有两条主线，先看清楚地图，后面就不会迷路。</p>
+  <ul>
+   <li><span class="k">描述统计 <span class="t-en">(descriptive statistics)</span></span>：把手上的数据整理成图和几个数字（第 2 章）。只讲手上这批数据，不下结论。</li>
+   <li><span class="k">推断统计 <span class="t-en">(inferential statistics)</span></span>：由样本去讲总体的事（第 7–11 章）。因为只看了一部分，结论一定带着"不确定"，所以要先学概率（第 3–5 章）和抽样分布（第 6 章）。</li>
+  </ul>
+  <p>章节的逻辑顺序是：<span class="k">整理数据 → 概率 → 抽样分布 → 估计 → 检验</span>。第 6 章是全书转折点，前面都是在为它铺路。</p>
+  <div class="eg"><b>例</b>"这 50 人平均 68.4 分" = 描述。"全校平均分大概在 65.6 到 71.2 之间" = 推断。</div>`},
+ {no:"1.3",t:"数据怎么摆",en:"Presentation of Data",html:`
+  <p>原始数据就是一串数字，通常写成 x₁, x₂, …, x<sub>n</sub>，n 是样本量。总体用 N。</p>
+  <p>同一串数字，摆法不同，看到的东西也不同：</p>
+  <ul>
+   <li><span class="k">按顺序排</span>（从小到大）：一眼看出最小、最大、中间在哪。求中位数、四分位数之前都要先排序。</li>
+   <li><span class="k">次数表 <span class="t-en">(frequency table)</span></span>：把值分组，数每组几个。</li>
+   <li><span class="k">图</span>：形状（对称？偏斜？）、中心、散开程度、有没有离群值。</li>
+  </ul>
+  <div class="warn"><b>常错</b>Σx 是所有数据加起来；(Σx)² 是"先加再平方"，Σx² 是"先平方再加"。两者几乎从不相等，算标准差时最容易在这里出错。</div>`}],
+ fml:[{t:"求和符号",h:`Σx = x<sub>1</sub> + x<sub>2</sub> + … + x<sub>n</sub> &nbsp;&nbsp; n = 样本量`}],
+ quiz:[
+ {q:"某研究抽了 200 名成年人，量他们的血压，算出平均 128 mmHg。这里的 128 是：",o:["参数","统计量","总体","变量"],a:1,e:"由样本算出来的数字叫统计量。参数是描述整个总体的数（这里是全体成年人的真实平均血压 μ，未知）。",trap:"看到\"平均\"就以为是参数 μ。判断标准是：这个数来自样本还是全体。"},
+ {q:"下列哪一个是定性变量？",o:["体重（公斤）","家里孩子的人数","手机品牌","轮胎寿命（公里）"],a:2,e:"品牌只能归类、不能做算术，所以是定性（类别型）变量。",trap:"把品牌编号成 1、2、3 之后，看起来像数字，但平均\"1.8 号品牌\"没有意义。"},
+ {q:"μ 和 x̄ 的关系，哪句对？",o:["两个都是从样本算的","μ 通常未知，x̄ 用来估计它","x̄ 通常未知，μ 用来估计它","两个一定相等"],a:1,e:"μ 是总体参数（固定但未知），x̄ 是样本统计量（已知，会随样本变动），我们用 x̄ 去估计 μ。",trap:""},
+ {q:"\"这 30 个灯泡平均用了 1180 小时\" 属于：",o:["描述统计","推断统计","抽样","假设检验"],a:0,e:"只在讲手上这 30 个，没有推广到全部灯泡，所以是描述。",trap:"一旦加上\"所以全厂灯泡平均寿命约 1180 小时\"，就变成推断了。"},
+ {q:"家里养的猫的数量，是什么类型的变量？",o:["定性","连续定量","离散定量","以上都不是"],a:2,e:"只能是 0、1、2…这种可数的整数，属于离散定量变量。",trap:"离散/连续的分界不是\"数字大小\"，而是中间能不能无限细分。"},
+ {q:"如果 x 的值是 2、3、5，那么 Σx² 与 (Σx)² 分别是：",o:["38 和 100","100 和 38","10 和 10","38 和 38"],a:0,e:"Σx² = 4+9+25 = 38；(Σx)² = 10² = 100。顺序不同，结果差很多。",trap:"算方差时把这两个符号用混，是最常见的计算错误。"},
+ {q:"抽样的主要理由是：",o:["样本一定比总体准","调查全体通常太贵、太慢或做不到","样本可以避免误差","法律规定"],a:1,e:"抽样是成本与时间的妥协；代价是结论带有抽样误差，这正是后面推断统计要处理的问题。",trap:"样本不会\"更准\"，它只是可行。"},
+ {q:"下面哪一组符号全部都是统计量？",o:["μ、σ、p","x̄、s、p̂","μ、x̄、s","N、μ、σ"],a:1,e:"罗马字母配上帽子或小写（x̄、s、p̂）来自样本；希腊字母 μ、σ、p 描述总体。",trap:""}
+]},
+
+{n:2,zh:"描述统计",en:"Descriptive Statistics",blurb:"三件事：形状、中心、散开。学会看图，再学会用两三个数字概括一堆数据。",
+ secs:[
+ {no:"2.1",t:"三种常用图",en:"Three Popular Data Displays",html:`
+  <p>看数据先看形状，不要急着算平均。</p>
+  <ul>
+   <li><span class="k">茎叶图 <span class="t-en">(stem-and-leaf)</span></span>：把十位当茎、个位当叶。好处是图画出来了，原始数据还留着。适合数据量小。</li>
+   <li><span class="k">次数直方图 <span class="t-en">(frequency histogram)</span></span>：分组画柱子，柱高 = 每组个数。柱子之间不留缝（因为数值是连续的）。</li>
+   <li><span class="k">相对次数直方图 <span class="t-en">(relative frequency histogram)</span></span>：柱高 = 个数 ÷ n = 比例。全部柱子面积加起来 = 1。这一点很关键：第 5 章把它推到极限，就变成连续分布的曲线，面积就是概率。</li>
+  </ul>
+  <p>要看的形状：<span class="k">对称</span>、<span class="k">右偏</span>（长尾拖向大值，如收入）、<span class="k">左偏</span>、双峰、有无离群值。</p>
+  <div class="warn"><b>常错</b>直方图（定量数据）不要和条形图（类别数据）搞混。条形图的柱子之间要留空隙，顺序还可以随便换。</div>`},
+ {no:"2.2",t:"中心在哪",en:"Measures of Central Location",html:`
+  <p>三个常见的"中心"：</p>
+  <div class="fml"><span class="lbl">样本均值</span>x̄ = <span class="frac"><span>Σx</span><span>n</span></span> &nbsp;&nbsp;&nbsp; <span class="lbl" style="margin-top:6px">总体均值</span>μ = <span class="frac"><span>Σx</span><span>N</span></span></div>
+  <ul>
+   <li><span class="k">中位数 <span class="t-en">(median)</span></span>：排序后正中间那个。n 是奇数取中间一个；n 是偶数取中间两个的平均。</li>
+   <li><span class="k">众数 <span class="t-en">(mode)</span></span>：出现次数最多的值。可以没有，也可以有好几个。类别型数据只有众数能用。</li>
+  </ul>
+  <p>关系：对称分布时三者差不多；<span class="k">右偏时 均值 &gt; 中位数</span>（均值被长尾拉走），左偏时反过来。均值会被离群值拉动，中位数不会 — 这叫稳健 <span class="t-en">(resistant)</span>。</p>
+  <div class="eg"><b>例</b>五个人的月薪（千元）：3、3.5、4、4.5、40。中位数 4，均值 11。这时中位数更能代表"一般人"。</div>`,demo:"dot"},
+ {no:"2.3",t:"散开多大",en:"Measures of Variability",html:`
+  <p>两组数据可以均值一样，散开程度完全不同，所以一定要报告变异性。</p>
+  <ul><li><span class="k">全距 <span class="t-en">(range)</span></span> = 最大 − 最小。只用两个数，很容易被离群值骗。</li></ul>
+  <div class="fml"><span class="lbl">样本方差（定义式）</span>s² = <span class="frac"><span>Σ(x − x̄)²</span><span>n − 1</span></span>
+  <br><span class="lbl" style="margin-top:8px">样本方差（计算式，手算用这个）</span>s² = <span class="frac"><span>Σx² − (Σx)²/n</span><span>n − 1</span></span>
+  <br><span class="lbl" style="margin-top:8px">样本标准差</span>s = √s²</div>
+  <p>为什么除以 <span class="k">n − 1</span> 而不是 n？因为 x̄ 本身是从同一批数据算出来的，偏差和一定为 0，只有 n−1 个偏差是"自由"的。除以 n−1 才不会系统性低估总体方差。总体方差 σ² 则是除以 N。</p>
+  <p>标准差的单位与原数据相同，所以比方差好解释：它大致是"平均离均值多远"。s ≥ 0，只有全部数据相同时 s = 0。</p>
+  <div class="warn"><b>常错</b>忘记开根号（把 s² 当 s 用）；或在样本题里除以 n。看到"样本"两个字，分母就是 n − 1。</div>`,demo:"dot"},
+ {no:"2.4",t:"相对位置",en:"Relative Position of Data",html:`
+  <p>一个分数本身没意义，要看它在整群里站哪里。</p>
+  <ul>
+   <li><span class="k">百分位数 <span class="t-en">(percentile)</span></span>：第 80 百分位 = 约 80% 的数据在它以下。</li>
+   <li><span class="k">四分位数</span>：Q₁（第 25）、Q₂ = 中位数、Q₃（第 75）。</li>
+   <li><span class="k">四分位距</span> IQR = Q₃ − Q₁，只看中间一半的宽度，不怕离群值。</li>
+   <li><span class="k">五数概括</span>：最小、Q₁、中位数、Q₃、最大 → 画成<span class="k">箱形图 <span class="t-en">(boxplot)</span></span>。</li>
+  </ul>
+  <div class="fml"><span class="lbl">z 分数（标准化）</span>z = <span class="frac"><span>x − x̄</span><span>s</span></span> &nbsp;&nbsp;（总体：z = <span class="frac"><span>x − μ</span><span>σ</span></span>）</div>
+  <p>z 的意思是"离均值几个标准差"。z = 2 表示高于均值 2 个标准差；z 是负的就在均值以下。z 没有单位，所以能把不同考试、不同单位的成绩放在一起比。</p>
+  <div class="eg"><b>例</b>数学考 80（x̄=70, s=5）→ z = 2；英文考 80（x̄=75, s=10）→ z = 0.5。数学表现好得多。</div>
+  <div class="eg"><b>离群值判断</b>落在 Q₁ − 1.5·IQR 以下或 Q₃ + 1.5·IQR 以上的点，通常标为离群值。</div>`},
+ {no:"2.5",t:"经验法则与切比雪夫",en:"The Empirical Rule and Chebyshev's Theorem",html:`
+  <p>知道 x̄ 和 s，就能大致说出数据分布在哪。</p>
+  <p><span class="k">经验法则 <span class="t-en">(Empirical Rule)</span></span> — 只在分布接近钟形（正态）时能用：</p>
+  <ul><li>μ ± 1σ 内约 <span class="k">68%</span></li><li>μ ± 2σ 内约 <span class="k">95%</span></li><li>μ ± 3σ 内约 <span class="k">99.7%</span></li></ul>
+  <p><span class="k">切比雪夫定理 <span class="t-en">(Chebyshev)</span></span> — 任何形状的分布都成立：</p>
+  <div class="fml">落在 μ ± kσ 内的比例 至少 1 − <span class="frac"><span>1</span><span>k²</span></span> &nbsp;&nbsp;(k &gt; 1)</div>
+  <p>k = 2 → 至少 75%；k = 3 → 至少 88.9%。范围宽松，但不需要任何形状假设。</p>
+  <div class="warn"><b>常错</b>切比雪夫给的是"至少"，不是"大约"。k = 1 时公式给 0，等于什么都没说，所以 k 必须大于 1。分布不是钟形时，不可以用 68–95–99.7。</div>`}],
+ fml:[{t:"均值",h:`x̄ = <span class="frac"><span>Σx</span><span>n</span></span>`},
+      {t:"样本方差与标准差",h:`s² = <span class="frac"><span>Σx² − (Σx)²/n</span><span>n − 1</span></span> &nbsp; s = √s²`},
+      {t:"z 分数",h:`z = <span class="frac"><span>x − x̄</span><span>s</span></span>`},
+      {t:"IQR 与离群值界线",h:`IQR = Q<sub>3</sub> − Q<sub>1</sub> &nbsp;&nbsp; 界线：Q<sub>1</sub> − 1.5·IQR, &nbsp;Q<sub>3</sub> + 1.5·IQR`},
+      {t:"切比雪夫",h:`至少 1 − 1/k² 的数据落在 μ ± kσ 内`}],
+ quiz:[
+ {q:"数据 4、6、6、8、16 的中位数与均值分别是：",o:["6 和 8","8 和 6","6 和 6","8 和 8"],a:0,e:"排序后中间是 6；均值 = 40/5 = 8。右偏（16 是大尾巴）使均值大于中位数。",trap:"忘了先排序，或把众数当中位数。"},
+ {q:"某组数据右偏，则：",o:["均值 < 中位数","均值 ≈ 中位数","均值 > 中位数","无法判断"],a:2,e:"右边的长尾把均值往大值方向拉，中位数受影响很小。",trap:"\"右偏\"指尾巴在右边（大值方向），不是峰在右边。"},
+ {q:"样本标准差的分母是：",o:["n","n − 1","N","n + 1"],a:1,e:"样本方差除以 n − 1（自由度），这样才不会系统性低估总体方差；总体方差才除以 N。",trap:"题目说\"这 20 个是全部产品\"时，那是总体，要除以 N。"},
+ {q:"某学生成绩 z = −1.5，表示：",o:["他考了 −1.5 分","他低于平均 1.5 个标准差","他排在第 1.5 名","他高于平均 1.5 分"],a:1,e:"z 的单位就是标准差个数，负数表示在均值以下。",trap:"把 z 当分数或名次读。"},
+ {q:"两次考试：甲考 78（x̄=70, s=4），乙考 85（x̄=80, s=10）。谁的相对表现好？",o:["甲","乙","一样","资料不足"],a:0,e:"甲 z = (78−70)/4 = 2；乙 z = (85−80)/10 = 0.5。甲更好。",trap:"只比原始分数，忽略两次考试的离散程度不同。"},
+ {q:"IQR 比全距好用，主要因为：",o:["计算比较快","不受离群值影响","一定比较大","不需要排序"],a:1,e:"IQR 只看中间 50%，两端的极端值换掉也不影响；全距完全由两个极端值决定。",trap:"求 IQR 一样要先排序。"},
+ {q:"分布形状不知道，问至少多少比例落在 μ ± 2σ 内？",o:["68%","95%","至少 75%","至少 88.9%"],a:2,e:"用切比雪夫：1 − 1/2² = 0.75，即至少 75%。",trap:"形状未知就套 95%，那是钟形分布才能用的经验法则。"},
+ {q:"相对次数直方图的所有柱子加起来等于：",o:["n","1","100","x̄"],a:1,e:"每根柱高是比例（次数 ÷ n），全部加起来是 1。这个性质把直方图和后面\"概率 = 面积\"连起来。",trap:"若用百分比刻度则是 100%，本质相同。"}
+]},
+
+{n:3,zh:"概率的基本概念",en:"Basic Concepts of Probability",blurb:"推断的语言。先数清可能性，再学交集、并集、条件概率三条规则。",
+ secs:[
+ {no:"3.1",t:"样本空间、事件、概率",en:"Sample Spaces, Events, and Their Probabilities",html:`
+  <p>随机试验 <span class="t-en">(random experiment)</span>：结果事先不确定的过程，例如掷骰子。</p>
+  <ul>
+   <li><span class="k">样本空间 S</span>：所有可能结果的集合。掷一颗骰子 S = {1,2,3,4,5,6}。</li>
+   <li><span class="k">事件 <span class="t-en">(event)</span></span>：S 的一个子集。例：E = "点数是偶数" = {2,4,6}。</li>
+  </ul>
+  <p>概率规则：每个结果的概率在 0 与 1 之间，全部结果的概率加起来 = 1。事件的概率 = 它包含的那些结果的概率之和。</p>
+  <div class="fml"><span class="lbl">等可能情形</span>P(E) = <span class="frac"><span>E 中的结果个数</span><span>S 中的结果个数</span></span></div>
+  <div class="eg"><b>例</b>掷两颗骰子，S 有 36 种等可能结果。"点数和为 7" 有 6 种 → 6/36 = 1/6。</div>
+  <div class="warn"><b>常错</b>只有在每个结果等可能时才能用"数个数"。两颗骰子的"和"从 2 到 12 共 11 个值，但它们不等可能，不能算 1/11。</div>`,demo:"dice"},
+ {no:"3.2",t:"补、交、并",en:"Complements, Intersections, Unions",html:`
+  <ul>
+   <li><span class="k">补集 A<sup>c</sup></span>：A 不发生。P(A<sup>c</sup>) = 1 − P(A)。</li>
+   <li><span class="k">交集 A ∩ B</span>：两个都发生（"且"）。</li>
+   <li><span class="k">并集 A ∪ B</span>：至少一个发生（"或"）。</li>
+  </ul>
+  <div class="fml"><span class="lbl">加法法则</span>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</div>
+  <p>减掉交集，是因为重叠部分被数了两次。若 A 与 B <span class="k">互斥 <span class="t-en">(mutually exclusive)</span></span>，即 P(A ∩ B) = 0，就简化成 P(A) + P(B)。</p>
+  <div class="eg"><b>例</b>抽一张扑克牌。P(红) = 26/52，P(K) = 4/52，P(红且 K) = 2/52。P(红或 K) = 26/52 + 4/52 − 2/52 = 28/52。</div>
+  <div class="warn"><b>常错</b>"至少一个"的题目，用补集最快：P(至少一个) = 1 − P(一个都没有)。</div>`},
+ {no:"3.3",t:"条件概率与独立",en:"Conditional Probability and Independent Events",html:`
+  <p><span class="k">条件概率 P(A|B)</span>：已经知道 B 发生了，A 的概率。等于把样本空间缩小到 B 里面。</p>
+  <div class="fml">P(A|B) = <span class="frac"><span>P(A ∩ B)</span><span>P(B)</span></span> &nbsp;&nbsp;&nbsp; <span class="lbl" style="margin-top:6px">乘法法则</span>P(A ∩ B) = P(B) · P(A|B)</div>
+  <p><span class="k">独立 <span class="t-en">(independent)</span></span>：B 发生与否不改变 A 的概率，即 P(A|B) = P(A)。此时 P(A ∩ B) = P(A)·P(B)。</p>
+  <div class="eg"><b>例</b>一副牌连抽两张不放回。P(两张都是 K) = (4/52)(3/51)。第二次的分母变成 51 — 这就是不独立。若抽完放回，则是 (4/52)(4/52)。</div>
+  <div class="warn"><b>常错</b>互斥 ≠ 独立。互斥是"不能同时发生"，独立是"互不影响"。两个互斥且概率都不为 0 的事件，一定不独立（一个发生了，另一个概率变成 0）。</div>`}],
+ fml:[{t:"补集",h:`P(A<sup>c</sup>) = 1 − P(A)`},
+      {t:"加法法则",h:`P(A ∪ B) = P(A) + P(B) − P(A ∩ B)`},
+      {t:"条件概率",h:`P(A|B) = <span class="frac"><span>P(A ∩ B)</span><span>P(B)</span></span>`},
+      {t:"独立",h:`P(A ∩ B) = P(A)·P(B)`}],
+ quiz:[
+ {q:"掷两颗骰子，点数和为 5 的概率是：",o:["1/11","4/36","5/36","1/6"],a:1,e:"(1,4)(4,1)(2,3)(3,2) 共 4 种，S 有 36 种 → 4/36 = 1/9。",trap:"用\"和\"的 11 个值当等可能来算，是典型错误。"},
+ {q:"P(A) = 0.6，P(B) = 0.5，P(A ∩ B) = 0.2，则 P(A ∪ B) =",o:["1.1","0.9","0.8","0.3"],a:1,e:"0.6 + 0.5 − 0.2 = 0.9。",trap:"忘了减交集，会算出大于 1 的概率 — 那一定错了。"},
+ {q:"若 A 与 B 互斥，则：",o:["P(A ∩ B) = P(A)P(B)","P(A ∩ B) = 0","A 与 B 独立","P(A|B) = P(A)"],a:1,e:"互斥就是不能同时发生，交集概率为 0。",trap:"互斥与独立是两回事，别混。"},
+ {q:"某班 60% 女生，女生中 30% 戴眼镜。随机抽一人是戴眼镜女生的概率：",o:["0.90","0.30","0.18","0.50"],a:2,e:"用乘法法则：0.60 × 0.30 = 0.18。",trap:"把 30% 直接当成\"全班戴眼镜比例\"。它是女生里面的比例，即条件概率。"},
+ {q:"一副牌抽两张不放回，第二张是红心的概率会受第一张影响，因为：",o:["它们互斥","它们不独立","它们是补集","概率不能相乘"],a:1,e:"不放回使剩下的牌变了，第二次的条件概率改变，所以两次抽牌不独立。",trap:"\"放回\"→ 独立；\"不放回\"→ 不独立。看这两个字。"},
+ {q:"投硬币 3 次，至少出现一次正面的概率：",o:["1/8","3/8","7/8","1/2"],a:2,e:"用补集：P(至少一次正) = 1 − P(全反) = 1 − (1/2)³ = 7/8。",trap:"逐个情况加容易漏；\"至少\"优先想补集。"},
+ {q:"已知 P(B) = 0.4，P(A ∩ B) = 0.1，则 P(A|B) =",o:["0.04","0.25","0.4","0.5"],a:1,e:"0.1 / 0.4 = 0.25。条件概率是把分母换成 B 的概率。",trap:"分子分母颠倒，算成 P(B|A)。"},
+ {q:"下面哪个不可能是某事件的概率？",o:["0","0.07","1","1.4"],a:3,e:"概率必须落在 0 与 1 之间，1.4 不合法。",trap:"计算结果超过 1 时，通常是加法法则忘了减交集。"}
+]}
+);
+</script>
+<script>
+BOOK.push(
+{n:4,zh:"离散随机变量",en:"Discrete Random Variables",blurb:"把随机结果变成数字，然后问：平均会是多少？二项分布是这一章的主角。",
+ secs:[
+ {no:"4.1",t:"随机变量",en:"Random Variables",html:`
+  <p><span class="k">随机变量 <span class="t-en">(random variable)</span></span>：把随机试验的结果对应成一个数字，用大写字母 X 表示。</p>
+  <ul>
+   <li><span class="k">离散</span>：可能取值可以一个一个列出来（0,1,2,…）。例：10 个产品中的不良品数。</li>
+   <li><span class="k">连续</span>：取值填满一段区间。例：轮胎寿命、瓶装饮料的实际容量。</li>
+  </ul>
+  <p>小写 x 表示它取到的某个具体值，所以写 P(X = x)。</p>
+  <div class="warn"><b>常错</b>离散变量问"恰好等于 3"有意义；连续变量问 P(X = 3) 永远等于 0，只能问一个区间。</div>`},
+ {no:"4.2",t:"离散分布、期望与方差",en:"Probability Distributions for Discrete Random Variables",html:`
+  <p>离散分布就是一张表：每个 x 配一个 P(x)。必须满足：每个 P(x) 在 0 与 1 之间，且 ΣP(x) = 1。</p>
+  <div class="fml"><span class="lbl">均值（期望值）</span>μ = E(X) = Σ x·P(x)
+  <br><span class="lbl" style="margin-top:8px">方差</span>σ² = Σ(x − μ)²P(x) = Σx²P(x) − μ²
+  <br><span class="lbl" style="margin-top:8px">标准差</span>σ = √σ²</div>
+  <p>期望值是"长期平均"，不是"最可能出现的值"，它甚至可以不是一个可能取值。</p>
+  <div class="eg"><b>例</b>一张彩票 10 元，中 1000 元的概率 0.001，否则没有。净赚 X：+990（p=0.001）、−10（p=0.999）。E(X) = 990(0.001) − 10(0.999) = −9.01 元。长期玩一定亏。</div>
+  <div class="warn"><b>常错</b>算方差时用 Σx²P(x) − μ²，注意 μ² 是"先算期望再平方"，不要写成 Σ(xP(x))²。</div>`},
+ {no:"4.3",t:"二项分布",en:"The Binomial Distribution",html:`
+  <p>四个条件都满足才是二项 <span class="t-en">(binomial)</span>：① 固定做 n 次；② 每次只有成功/失败两种结果；③ 各次独立；④ 成功概率 p 每次相同。X = 成功次数。</p>
+  <div class="fml">P(X = x) = <sup>n</sup>C<sub>x</sub> · p<sup>x</sup> · (1 − p)<sup>n − x</sup> &nbsp;&nbsp; x = 0,1,…,n
+  <br><span class="lbl" style="margin-top:8px">其中</span><sup>n</sup>C<sub>x</sub> = <span class="frac"><span>n!</span><span>x!(n − x)!</span></span>
+  <br><span class="lbl" style="margin-top:8px">均值与标准差</span>μ = np &nbsp;&nbsp; σ = √(np(1 − p))</div>
+  <p>形状：p = 0.5 时对称；p 小时右偏；n 越大越接近钟形 — 这是第 6 章用正态来近似它的原因。</p>
+  <div class="eg"><b>例</b>某零件不良率 p = 0.1，抽 n = 20 件。μ = 2 件，σ = √(20·0.1·0.9) = 1.34。恰好 3 件不良：<sup>20</sup>C<sub>3</sub>(0.1)³(0.9)¹⁷ ≈ 0.190。</div>
+  <div class="warn"><b>常错</b>"至多 3 件"要把 x = 0,1,2,3 全部加起来；"至少 1 件"用 1 − P(X = 0)。抽样不放回且样本占总体比例很大时，各次不独立，不能用二项。</div>`,demo:"binom"}],
+ fml:[{t:"离散分布的期望与方差",h:`μ = Σx·P(x) &nbsp;&nbsp; σ² = Σx²P(x) − μ²`},
+      {t:"二项概率",h:`P(X = x) = <sup>n</sup>C<sub>x</sub> p<sup>x</sup>(1 − p)<sup>n−x</sup>`},
+      {t:"二项的均值与标准差",h:`μ = np &nbsp;&nbsp; σ = √(np(1 − p))`}],
+ quiz:[
+ {q:"某离散分布中 P(0)=0.2, P(1)=0.3, P(2)=0.4, P(3)=k。k 应为：",o:["0.1","0.2","0.3","1.0"],a:0,e:"所有概率加起来必须是 1，所以 k = 1 − 0.9 = 0.1。",trap:""},
+ {q:"X 的取值 0、1、2，概率 0.5、0.3、0.2，则 E(X) =",o:["1.0","0.7","1.5","0.5"],a:1,e:"0(0.5) + 1(0.3) + 2(0.2) = 0.7。",trap:"把三个取值直接平均成 1，忽略了概率权重。"},
+ {q:"下列哪个情形不适合用二项分布？",o:["投硬币 10 次数正面","20 题选择题猜对几题","从 30 人的班上不放回抽 10 人数男生","检验 50 个零件数不良品（不良率固定）"],a:2,e:"不放回而且样本占总体三分之一，各次抽取不独立、p 会变，应该用超几何分布。",trap:"总体很大时不放回也可近似当独立；这题总体只有 30 人，所以不行。"},
+ {q:"n = 25、p = 0.4 的二项分布，μ 与 σ 是：",o:["10 和 2.45","10 和 6","15 和 2.45","10 和 4"],a:0,e:"μ = np = 10；σ = √(25·0.4·0.6) = √6 = 2.449。",trap:"把 np(1−p) = 6 直接当标准差，忘了开根号。"},
+ {q:"n = 6、p = 0.5，P(至少 1 次成功) =",o:["1/64","63/64","6/64","1/2"],a:1,e:"1 − P(X=0) = 1 − (0.5)⁶ = 63/64 ≈ 0.984。",trap:"\"至少一次\"一律先想补集。"},
+ {q:"期望值 E(X) 的正确解释是：",o:["最可能出现的值","长期重复下的平均结果","一定会出现的值","中位数"],a:1,e:"它是长期平均，可能不是任何一次实际会出现的数（例如平均 2.3 个孩子）。",trap:"把期望值当众数。"},
+ {q:"二项分布在什么时候大致对称？",o:["n 很小","p 接近 0","p = 0.5","p 接近 1"],a:2,e:"p = 0.5 时左右对称；p 偏离 0.5 会偏斜，但 n 增大时仍逐渐趋近钟形。",trap:""},
+ {q:"连续随机变量的 P(X = 5) 等于：",o:["0","很小的正数","1/n","看密度曲线的高度"],a:0,e:"连续变量的概率是曲线下的面积，单一点的宽度为 0，所以概率是 0。密度高度不是概率。",trap:"把密度函数的值 f(5) 当成概率。"}
+]},
+
+{n:5,zh:"连续随机变量",en:"Continuous Random Variables",blurb:"概率变成曲线下的面积。正态分布 + z 表，是后面所有推断的计算工具。",
+ secs:[
+ {no:"5.1",t:"连续变量与密度曲线",en:"Continuous Random Variables",html:`
+  <p>连续变量用<span class="k">密度曲线 <span class="t-en">(density curve)</span></span>描述。两条规则：</p>
+  <ul><li>曲线不低于 0；</li><li>曲线下总面积 = 1。</li></ul>
+  <p>概率 = <span class="k">面积</span>。P(a &lt; X &lt; b) 就是 a 到 b 之间曲线下的面积。因为单点面积为 0，所以 P(X ≥ a) 与 P(X &gt; a) 相同 — 连续情形下"含不含端点"不影响答案。</p>
+  <p>回想 2.1 的相对次数直方图：组距越细、柱子越多，轮廓就越接近一条平滑曲线。密度曲线就是它的极限。</p>`},
+ {no:"5.2",t:"标准正态分布",en:"The Standard Normal Distribution",html:`
+  <p><span class="k">标准正态分布 Z</span>：钟形、对称、中心 μ = 0、标准差 σ = 1。查表得到的是<span class="k">左尾面积</span>，即 P(Z &lt; z)。</p>
+  <ul>
+   <li>P(Z &lt; z) 直接查表。</li>
+   <li>P(Z &gt; z) = 1 − P(Z &lt; z)。</li>
+   <li>P(a &lt; Z &lt; b) = P(Z &lt; b) − P(Z &lt; a)。</li>
+   <li>对称性：P(Z &lt; −z) = P(Z &gt; z)。</li>
+  </ul>
+  <p>常用值记住：P(Z &lt; 1.645) ≈ 0.95，P(Z &lt; 1.96) ≈ 0.975，P(Z &lt; 2.576) ≈ 0.995。后面做置信区间和检验时反复用到。</p>
+  <div class="warn"><b>常错</b>永远先画一张钟形草图，把要求的面积涂上去，再决定要不要做 1 减。这一步能省掉一半的错。</div>`,demo:"normal"},
+ {no:"5.3",t:"一般正态的概率计算",en:"Probability Computations for General Normal Random Variables",html:`
+  <p>任何正态 X ~ N(μ, σ²) 都先标准化，再查 z 表：</p>
+  <div class="fml">z = <span class="frac"><span>x − μ</span><span>σ</span></span> &nbsp;&nbsp;→&nbsp;&nbsp; P(X &lt; x) = P(Z &lt; z)</div>
+  <div class="eg"><b>例</b>轮胎寿命 X ~ N(μ = 60000, σ = 5000) 公里。跑不到 52000 公里的比例：z = (52000 − 60000)/5000 = −1.6 → P(Z &lt; −1.6) ≈ 0.0548，约 5.5%。</div>
+  <div class="warn"><b>常错</b>σ 与 σ² 弄混：题目给"方差 25"时，分母要用 5，不是 25。</div>`},
+ {no:"5.4",t:"尾部面积（反查）",en:"Areas of Tails of Distributions",html:`
+  <p>前面是"给 x 求面积"，这里反过来：<span class="k">给面积求 x</span>。这类题在置信区间和临界值里天天出现。</p>
+  <p>记号 <span class="k">z<sub>α</sub></span>：右尾面积等于 α 的那个 z 值。例：z<sub>0.05</sub> = 1.645，z<sub>0.025</sub> = 1.96。</p>
+  <p>步骤：把要求的尾部面积转成左尾面积 → 在表里找最接近的面积 → 读出 z → 若要原单位，用 x = μ + zσ 还原。</p>
+  <div class="eg"><b>例</b>成绩 X ~ N(70, 8²)，前 10% 的分数线是多少？右尾 0.10 → z ≈ 1.28 → x = 70 + 1.28(8) ≈ 80.3 分。</div>
+  <div class="warn"><b>常错</b>"前 10%"是右尾 0.10 = 左尾 0.90，不要直接拿 0.10 去查表（那会得到 −1.28，方向刚好反了）。</div>`,demo:"normal"}],
+ fml:[{t:"标准化",h:`z = <span class="frac"><span>x − μ</span><span>σ</span></span> &nbsp;&nbsp; 还原：x = μ + zσ`},
+      {t:"常用临界值",h:`z<sub>0.05</sub> = 1.645 &nbsp; z<sub>0.025</sub> = 1.96 &nbsp; z<sub>0.005</sub> = 2.576`},
+      {t:"尾部转换",h:`P(Z > z) = 1 − P(Z < z) &nbsp;&nbsp; P(Z < −z) = P(Z > z)`}],
+ quiz:[
+ {q:"密度曲线下的总面积等于：",o:["n","1","μ","σ"],a:1,e:"这是密度曲线的定义要求，也是\"概率 = 面积\"能成立的基础。",trap:""},
+ {q:"X ~ N(100, 15²)，求 P(X < 115)：",o:["0.68","0.8413","0.95","0.1587"],a:1,e:"z = (115−100)/15 = 1，P(Z < 1) ≈ 0.8413。",trap:"看到 1 个标准差就答 0.68 — 那是\"两边合起来\"的中间面积，不是左尾。"},
+ {q:"P(Z > 1.5) 等于：",o:["P(Z < 1.5)","1 − P(Z < 1.5)","P(Z < −1.5) 的相反数","0.5 + P(Z < 1.5)"],a:1,e:"右尾 = 1 − 左尾；由对称性它也等于 P(Z < −1.5)。",trap:""},
+ {q:"某正态分布方差为 36、均值 50，求 x = 62 的 z：",o:["0.33","2","12","6"],a:1,e:"σ = √36 = 6，z = (62−50)/6 = 2。",trap:"直接用 36 当标准差。题目给方差时先开根号。"},
+ {q:"右尾面积为 0.025 的 z 值是：",o:["1.645","1.96","2.576","0.025"],a:1,e:"z₀.₀₂₅ = 1.96，这是 95% 置信区间用的那个数。",trap:"1.645 对应右尾 0.05（单尾 5%）。"},
+ {q:"成绩 X ~ N(75, 10²)，最低 20% 的分界分数约是：",o:["66.6","83.4","67.5","71.6"],a:0,e:"左尾 0.20 → z ≈ −0.84 → x = 75 + (−0.84)(10) = 66.6。",trap:"忘了 z 是负数，算成 83.4。"},
+ {q:"对连续随机变量，P(X ≥ 4) 与 P(X > 4) 的关系：",o:["前者较大","相等","后者较大","不能比较"],a:1,e:"单点概率为 0，所以含不含端点都一样。离散变量则不同。",trap:"把离散的习惯带到连续题里。"},
+ {q:"标准正态分布的 μ 与 σ 是：",o:["0 和 1","1 和 0","0 和 0","随样本而定"],a:0,e:"这是\"标准\"的定义：中心 0、标准差 1。任何正态都能通过 z 化成它。",trap:""}
+]},
+
+{n:6,zh:"抽样分布",en:"Sampling Distributions",blurb:"全书的转折点。x̄ 本身也是随机变量，它的分布长什么样，决定了后面所有推断能不能做。",
+ secs:[
+ {no:"6.1",t:"x̄ 的均值与标准差",en:"The Mean and Standard Deviation of the Sample Mean",html:`
+  <p>换一批样本，x̄ 就变一个数。把"所有可能样本的 x̄"的分布叫做<span class="k">抽样分布 <span class="t-en">(sampling distribution)</span></span>。</p>
+  <div class="fml">μ<sub>x̄</sub> = μ &nbsp;&nbsp;&nbsp;&nbsp; σ<sub>x̄</sub> = <span class="frac"><span>σ</span><span>√n</span></span></div>
+  <p>两个结论很重要：</p>
+  <ul>
+   <li>x̄ 的平均就是 μ — x̄ 不会系统性偏高或偏低，称为<span class="k">无偏 <span class="t-en">(unbiased)</span></span>。</li>
+   <li>x̄ 的散布比单个数据小 √n 倍。σ<sub>x̄</sub> 叫<span class="k">标准误 <span class="t-en">(standard error)</span></span>。样本量变 4 倍，标准误只减半 — 精确度的代价是平方级的。</li>
+  </ul>
+  <div class="warn"><b>常错</b>算 x̄ 的概率时，分母必须是 σ/√n，不是 σ。这是本章最常见的错。</div>`},
+ {no:"6.2",t:"中心极限定理",en:"The Sampling Distribution of the Sample Mean",html:`
+  <p><span class="k">中心极限定理 <span class="t-en">(Central Limit Theorem, CLT)</span></span>：不管总体什么形状，只要 n 足够大（一般用 <span class="k">n ≥ 30</span>），x̄ 的分布就近似正态，中心 μ、标准差 σ/√n。</p>
+  <div class="fml">Z = <span class="frac"><span>x̄ − μ</span><span>σ/√n</span></span> &nbsp;近似 N(0,1)</div>
+  <p>如果总体本来就是正态，那 x̄ 对任何 n 都是精确正态，不必等 n ≥ 30。</p>
+  <p>这条定理是整本书的地基：因为它，第 7–11 章才可以在不知道总体形状的情况下用 z 和 t 做区间与检验。</p>
+  <div class="eg"><b>例</b>某饮料装填量 μ = 500 ml、σ = 12 ml。抽 36 瓶，平均量低于 496 ml 的概率：z = (496 − 500)/(12/√36) = −4/2 = −2 → 约 0.0228。</div>
+  <div class="warn"><b>常错</b>把"数据接近正态"和"x̄ 接近正态"混为一谈。CLT 讲的是后者，而且 n 小、总体又严重偏斜时不成立。</div>`,demo:"clt"},
+ {no:"6.3",t:"样本比例",en:"The Sample Proportion",html:`
+  <p>研究"比例"时（支持率、不良率），统计量是 p̂ = x/n。</p>
+  <div class="fml">μ<sub>p̂</sub> = p &nbsp;&nbsp;&nbsp;&nbsp; σ<sub>p̂</sub> = √<span class="frac"><span>p(1 − p)</span><span>n</span></span>
+  <br><span class="lbl" style="margin-top:8px">标准化</span>Z = <span class="frac"><span>p̂ − p</span><span>√(p(1−p)/n)</span></span></div>
+  <p>什么时候可以当正态用？经验规则：<span class="k">np ≥ 10 且 n(1 − p) ≥ 10</span>（有些书用 5）。p 很靠近 0 或 1 时，需要更大的 n。</p>
+  <div class="eg"><b>例</b>真实支持率 p = 0.4，抽 n = 100。σ<sub>p̂</sub> = √(0.4·0.6/100) = 0.049。p̂ 超过 0.5 的概率：z = (0.5 − 0.4)/0.049 = 2.04 → 约 0.021。</div>`}],
+ fml:[{t:"样本均值的抽样分布",h:`μ<sub>x̄</sub> = μ &nbsp;&nbsp; σ<sub>x̄</sub> = σ/√n`},
+      {t:"CLT 的 z 值",h:`Z = <span class="frac"><span>x̄ − μ</span><span>σ/√n</span></span>`},
+      {t:"样本比例",h:`μ<sub>p̂</sub> = p &nbsp;&nbsp; σ<sub>p̂</sub> = √(p(1−p)/n)`}],
+ quiz:[
+ {q:"σ = 20、n = 25，则 x̄ 的标准误是：",o:["20","4","0.8","5"],a:1,e:"σ/√n = 20/5 = 4。",trap:"直接用 σ = 20 当标准误，是本章最常见的错。"},
+ {q:"中心极限定理说的是：",o:["样本数据会变成正态","n 够大时 x̄ 的分布近似正态","总体一定是正态","样本越大 σ 越小"],a:1,e:"它讲的是统计量 x̄ 的抽样分布，跟原始数据的形状没关系。σ 是总体的性质，不会因为抽样而改变。",trap:"以为 CLT 能\"把数据变正态\"。"},
+ {q:"总体严重右偏，要用正态近似 x̄，一般要求：",o:["n ≥ 2","n ≥ 10","n ≥ 30","任何 n 都行"],a:2,e:"经验门槛是 n ≥ 30；偏斜特别严重时还需要更大。总体本身是正态时任何 n 都可以。",trap:""},
+ {q:"样本量由 n = 25 增加到 n = 100，标准误变成原来的：",o:["1/4","1/2","2 倍","不变"],a:1,e:"标准误与 √n 成反比，√100/√25 = 2，所以标准误减半。",trap:"以为样本变 4 倍，误差就变 1/4。"},
+ {q:"μ = 100、σ = 15、n = 36，P(x̄ > 105) ≈",o:["0.3694","0.0228","0.0500","0.1587"],a:1,e:"标准误 = 15/6 = 2.5，z = (105−100)/2.5 = 2，右尾 ≈ 0.0228。",trap:"用 σ = 15 算成 z = 0.33，答 0.3694。"},
+ {q:"x̄ 是 μ 的无偏估计，意思是：",o:["x̄ 一定等于 μ","x̄ 的抽样分布均值等于 μ","x̄ 比中位数好","x̄ 没有误差"],a:1,e:"无偏是讲长期平均没有系统偏差，单次的 x̄ 仍然会和 μ 有差距。",trap:""},
+ {q:"p = 0.5、n = 100，p̂ 的标准差是：",o:["0.5","0.05","0.25","0.005"],a:1,e:"√(0.5·0.5/100) = √0.0025 = 0.05。",trap:"忘了除以 n 再开根号。"},
+ {q:"p = 0.03、n = 100 时用正态近似 p̂：",o:["可以，n 够大","不太合适，np 只有 3","一定可以，因为 n ≥ 30","要看 σ"],a:1,e:"需要 np ≥ 10 且 n(1−p) ≥ 10。这里 np = 3，太小，分布仍明显右偏。",trap:"只看 n 大不大，忘了检查 np。"}
+]},
+
+{n:7,zh:"区间估计",en:"Estimation",blurb:"用一个区间去猜 μ 或 p，并说清楚有多少信心。σ 已知用 z，未知用 t。",
+ secs:[
+ {no:"7.1",t:"大样本估计总体均值",en:"Large Sample Estimation of a Population Mean",html:`
+  <p>点估计 <span class="t-en">(point estimate)</span> 只给一个数（x̄），没有说明误差有多大。<span class="k">置信区间 <span class="t-en">(confidence interval)</span></span> 给一段范围。</p>
+  <div class="fml"><span class="lbl">σ 已知或 n 大（n ≥ 30）</span>x̄ ± z<sub>α/2</sub> · <span class="frac"><span>σ</span><span>√n</span></span></div>
+  <p>z<sub>α/2</sub>·σ/√n 叫<span class="k">误差幅度 <span class="t-en">(margin of error, E)</span></span>。常用临界值：90% → 1.645；95% → 1.96；99% → 2.576。σ 未知而 n 大时，可以用 s 代替 σ。</p>
+  <p>"95% 置信"的正确读法：<span class="k">用同样方法重复抽样很多次，其中约 95% 的区间会盖住 μ</span>。μ 是固定的，会变的是区间。</p>
+  <div class="eg"><b>例</b>n = 49、x̄ = 68.4、σ = 7。95% 区间：68.4 ± 1.96(7/7) = 68.4 ± 1.96 → (66.44, 70.36)。</div>
+  <div class="warn"><b>常错</b>不可以说"μ 有 95% 的概率落在这个区间里"。μ 不是随机的，要么在要么不在；95% 描述的是方法的长期表现。</div>`,demo:"ci"},
+ {no:"7.2",t:"小样本：t 分布",en:"Small Sample Estimation of a Population Mean",html:`
+  <p>n 小（&lt; 30）、σ 未知，又必须用 s 代替 σ，这时不确定性变大，要改用 <span class="k">t 分布</span>。前提：总体大致正态。</p>
+  <div class="fml">x̄ ± t<sub>α/2</sub> · <span class="frac"><span>s</span><span>√n</span></span> &nbsp;&nbsp; 自由度 df = n − 1</div>
+  <p>t 分布也是钟形对称，但比正态<span class="k">尾巴更厚</span>，所以区间更宽。df 越大越接近标准正态；df 很大时两者几乎一样。</p>
+  <div class="eg"><b>例</b>n = 16、x̄ = 12.4、s = 2.0，95% 区间：df = 15，t = 2.131 → 12.4 ± 2.131(2/4) = 12.4 ± 1.066 → (11.33, 13.47)。若误用 1.96，区间会偏窄。</div>
+  <div class="warn"><b>常错</b>自由度写成 n；或 σ 明确已知时还用 t。判断顺序：σ 已知 → z；σ 未知且 n 小 → t；σ 未知但 n 大 → z（用 s）也可接受。</div>`},
+ {no:"7.3",t:"总体比例的估计",en:"Large Sample Estimation of a Population Proportion",html:`
+  <p>p 未知，所以标准误里用 p̂ 代替 p：</p>
+  <div class="fml">p̂ ± z<sub>α/2</sub> · √<span class="frac"><span>p̂(1 − p̂)</span><span>n</span></span></div>
+  <p>适用条件：区间内的 np̂ 与 n(1 − p̂) 都至少 10。</p>
+  <div class="eg"><b>例</b>1000 人中 460 人支持，p̂ = 0.46。95% 区间：0.46 ± 1.96√(0.46·0.54/1000) = 0.46 ± 0.031 → (0.429, 0.491)。新闻说的"误差 ±3 个百分点"就是这个 E。</div>`},
+ {no:"7.4",t:"样本量要多大",en:"Sample Size Considerations",html:`
+  <p>先定好想要的误差幅度 E 和置信水平，再反推 n：</p>
+  <div class="fml"><span class="lbl">估计均值</span>n = <span class="frac"><span>(z<sub>α/2</sub> · σ)²</span><span>E²</span></span>
+  <br><span class="lbl" style="margin-top:8px">估计比例</span>n = <span class="frac"><span>(z<sub>α/2</sub>)² p̂(1 − p̂)</span><span>E²</span></span></div>
+  <p>算出来<span class="k">一律向上取整</span>。比例题若完全不知道 p̂，用最保守的 p̂ = 0.5（此时 p̂(1−p̂) 最大）。</p>
+  <div class="eg"><b>例</b>要 95% 信心、E = 0.03、p 未知：n = (1.96)²(0.25)/(0.03)² = 1067.1 → 取 1068 人。这就是很多民调用约 1000 人的原因。</div>
+  <div class="warn"><b>常错</b>E 用百分数与小数混用（3 与 0.03 差 10000 倍）；以及四舍五入下取整 — 样本量只能往上取。</div>`}],
+ fml:[{t:"均值区间（z）",h:`x̄ ± z<sub>α/2</sub> σ/√n`},
+      {t:"均值区间（t，df = n − 1）",h:`x̄ ± t<sub>α/2</sub> s/√n`},
+      {t:"比例区间",h:`p̂ ± z<sub>α/2</sub> √(p̂(1−p̂)/n)`},
+      {t:"样本量",h:`n = (z<sub>α/2</sub>σ/E)² &nbsp;&nbsp; n = (z<sub>α/2</sub>)²p̂(1−p̂)/E²`}],
+ quiz:[
+ {q:"95% 置信区间的正确解释是：",o:["μ 有 95% 概率在区间内","重复抽样时约 95% 的区间会盖住 μ","95% 的数据在区间内","样本均值有 95% 机会正确"],a:1,e:"置信水平描述方法的长期表现；μ 是固定的常数，不是随机变量。",trap:"把\"区间随机\"说成\"μ 随机\"，是考试最爱抓的错。"},
+ {q:"n = 100、x̄ = 50、σ = 10 的 95% 区间是：",o:["50 ± 1.96","50 ± 19.6","50 ± 0.196","50 ± 2.576"],a:0,e:"σ/√n = 1，E = 1.96(1) = 1.96 → (48.04, 51.96)。",trap:"忘了除 √n。"},
+ {q:"n = 12、σ 未知、总体近正态，做区间应该用：",o:["z 临界值","t 临界值，df = 12","t 临界值，df = 11","不能做区间"],a:2,e:"σ 未知且 n 小 → t 分布，自由度 n − 1 = 11。",trap:"自由度写成 n。"},
+ {q:"其他条件不变，置信水平由 95% 提高到 99%，区间会：",o:["变窄","变宽","不变","看情况"],a:1,e:"临界值由 1.96 变成 2.576，误差幅度变大，区间更宽。信心越高，说得越模糊。",trap:"以为提高信心可以同时更精确 — 除非加大 n。"},
+ {q:"要让误差幅度减半，样本量大约要：",o:["减半","变 2 倍","变 4 倍","不变"],a:2,e:"E 与 √n 成反比，E 减半需要 n 变 4 倍。",trap:""},
+ {q:"1000 人中 300 人赞成，p̂ 的 95% 区间的误差幅度约为：",o:["0.014","0.028","0.046","0.003"],a:1,e:"1.96√(0.3·0.7/1000) = 1.96(0.0145) = 0.028。",trap:"算标准误时忘了开根号，或把 p̂ 写成 300。"},
+ {q:"完全不知道 p 时，样本量公式里 p̂ 该取：",o:["0.1","0.5","0.9","1.0"],a:1,e:"p̂ = 0.5 使 p̂(1−p̂) = 0.25 达到最大，算出的 n 最保守（够用）。",trap:""},
+ {q:"t 分布与标准正态相比：",o:["尾巴更薄","尾巴更厚，区间更宽","中心不在 0","不对称"],a:1,e:"因为多了用 s 估计 σ 的不确定性，t 的尾部更厚；df 增大时逐渐趋近正态。",trap:""}
+]}
+);
+</script>
+<script>
+BOOK.push(
+{n:8,zh:"假设检验",en:"Testing Hypotheses",blurb:"全书核心流程：先假设没差别，再看数据有多不寻常，然后决定要不要推翻它。",
+ secs:[
+ {no:"8.1",t:"检验的五个要素",en:"The Elements of Hypothesis Testing",html:`
+  <p>检验就是在两个对立说法之间做选择。</p>
+  <ul>
+   <li><span class="k">虚无假设 H<sub>0</sub></span>：默认立场，"没有变化、没有差别"。一定带等号（μ = μ₀）。</li>
+   <li><span class="k">对立假设 H<sub>a</sub></span>：你想证明的说法。μ ≠ μ₀（双尾）、μ &gt; μ₀ 或 μ &lt; μ₀（单尾）。</li>
+  </ul>
+  <p>两种可能犯的错：</p>
+  <table class="tbl"><tr><th></th><th>H₀ 实际为真</th><th>H₀ 实际为假</th></tr>
+  <tr><th>拒绝 H₀</th><td>第一类错误（α）</td><td>正确</td></tr>
+  <tr><th>不拒绝 H₀</th><td>正确</td><td>第二类错误（β）</td></tr></table>
+  <p><span class="k">α 是显著水平</span>，由你事先决定（常用 0.05）。α 调小，第一类错误变少，但 β 变大 — 两者互相牵制。</p>
+  <div class="warn"><b>常错</b>结论只能说"拒绝 H₀"或"证据不足，不拒绝 H₀"，绝不能说"证明 H₀ 为真"。没找到证据 ≠ 证明没有。</div>`},
+ {no:"8.2",t:"大样本均值检验",en:"Large Sample Tests for a Population Mean",html:`
+  <p>n ≥ 30 或 σ 已知时，检验统计量是：</p>
+  <div class="fml">Z = <span class="frac"><span>x̄ − μ<sub>0</sub></span><span>σ/√n</span></span> &nbsp;（σ 未知且 n 大时用 s 代替）</div>
+  <p>临界值法：把 Z 和临界值比。双尾 α = 0.05 → ±1.96；右尾 α = 0.05 → 1.645；左尾 → −1.645。Z 落进拒绝域就拒绝 H₀。</p>
+  <div class="eg"><b>例</b>宣称 μ = 500 g，抽 n = 64、x̄ = 496、s = 16。Z = (496 − 500)/(16/8) = −2.0。双尾 α = 0.05 的临界值 ±1.96，|−2.0| &gt; 1.96 → 拒绝，有证据说不是 500 g。</div>
+  <div class="warn"><b>常错</b>分母又忘了 √n。还有：单尾还是双尾由 H<sub>a</sub> 决定，要在看数据之前就定下来。</div>`,demo:"pval"},
+ {no:"8.3",t:"p 值",en:"The Observed Significance of a Test",html:`
+  <p><span class="k">p 值 <span class="t-en">(p-value)</span></span>：假设 H₀ 为真，出现"像现在这么极端或更极端"的数据的概率。p 越小，数据越不像 H₀ 说的那样。</p>
+  <div class="fml">p ≤ α → 拒绝 H<sub>0</sub> &nbsp;&nbsp;&nbsp; p &gt; α → 不拒绝</div>
+  <p>怎么算：右尾检验 p = P(Z &gt; z)；左尾 p = P(Z &lt; z)；<span class="k">双尾要把单尾面积乘 2</span>。</p>
+  <div class="eg"><b>例</b>上一节 Z = −2.0、双尾：p = 2 × P(Z &lt; −2) = 2(0.0228) = 0.0456 &lt; 0.05 → 拒绝。与临界值法结论一致。</div>
+  <div class="warn"><b>常错</b>p 值<span class="k">不是</span>"H₀ 为真的概率"，也不是"结论出错的概率"。它是在 H₀ 为真的前提下算出来的数据极端程度。</div>`},
+ {no:"8.4",t:"小样本 t 检验",en:"Small Sample Tests for a Population Mean",html:`
+  <p>n 小、σ 未知、总体近似正态：</p>
+  <div class="fml">T = <span class="frac"><span>x̄ − μ<sub>0</sub></span><span>s/√n</span></span> &nbsp;&nbsp; df = n − 1</div>
+  <p>流程和 z 检验完全一样，只是查 t 表、用自由度。样本越小，临界值越大，越难拒绝 H₀ — 这很合理，证据少就该保守。</p>
+  <div class="eg"><b>例</b>n = 10、x̄ = 4.6、s = 0.5、H₀: μ = 5、双尾 α = 0.05。T = (4.6 − 5)/(0.5/√10) = −2.53；df = 9 的临界值 ±2.262 → 拒绝。</div>`},
+ {no:"8.5",t:"比例的检验",en:"Large Sample Tests for a Population Proportion",html:`
+  <p>注意：分母里用的是 <span class="k">H₀ 假设的 p₀</span>，不是 p̂（这点和置信区间不一样）。</p>
+  <div class="fml">Z = <span class="frac"><span>p̂ − p<sub>0</sub></span><span>√(p<sub>0</sub>(1 − p<sub>0</sub>)/n)</span></span></div>
+  <p>条件：np₀ ≥ 10 且 n(1 − p₀) ≥ 10。</p>
+  <div class="eg"><b>例</b>宣称合格率 p₀ = 0.90，抽 200 件有 170 件合格，p̂ = 0.85。Z = (0.85 − 0.90)/√(0.9·0.1/200) = −0.05/0.0212 = −2.36，左尾 p ≈ 0.009 → 拒绝。</div>
+  <div class="warn"><b>常错</b>检验用 p₀ 算标准误，区间用 p̂ 算标准误。两个公式长得像，别装错。</div>`}],
+ fml:[{t:"均值 z 检验",h:`Z = <span class="frac"><span>x̄ − μ<sub>0</sub></span><span>σ/√n</span></span>`},
+      {t:"均值 t 检验",h:`T = <span class="frac"><span>x̄ − μ<sub>0</sub></span><span>s/√n</span></span>, df = n − 1`},
+      {t:"比例 z 检验",h:`Z = <span class="frac"><span>p̂ − p<sub>0</sub></span><span>√(p<sub>0</sub>(1−p<sub>0</sub>)/n)</span></span>`},
+      {t:"判定",h:`p ≤ α 拒绝 H<sub>0</sub>；双尾 p = 2 × 单尾面积`}],
+ quiz:[
+ {q:"虚无假设 H₀ 的特点是：",o:["一定带等号","一定是研究者想证明的","一定是单尾","一定为假"],a:0,e:"H₀ 代表\"没有差别\"的默认立场，写成等号形式；要证明的东西放在 H_a。",trap:""},
+ {q:"第一类错误是指：",o:["H₀ 为假时不拒绝","H₀ 为真时拒绝","样本抽错了","计算错误"],a:1,e:"错杀好人：H₀ 本来是对的，却被拒绝。它的概率就是 α。",trap:"和第二类错误（放走坏人，β）搞反。"},
+ {q:"p 值 = 0.03、α = 0.05，结论是：",o:["拒绝 H₀","不拒绝 H₀","证明 H₀ 为真","无法判断"],a:0,e:"p ≤ α 就拒绝。数据在 H₀ 之下显得够不寻常。",trap:""},
+ {q:"p 值的正确定义是：",o:["H₀ 为真的概率","结论出错的概率","H₀ 为真时得到这么极端或更极端结果的概率","H_a 为真的概率"],a:2,e:"p 值是条件概率，条件是\"H₀ 为真\"。它不衡量假设本身的概率。",trap:"这题几乎必考，记熟定义。"},
+ {q:"双尾检验 Z = 2.10，p 值约为：",o:["0.0179","0.0358","0.9821","0.05"],a:1,e:"单尾 P(Z > 2.10) = 0.0179，双尾乘 2 = 0.0358。",trap:"双尾忘了乘 2。"},
+ {q:"n = 15、σ 未知、总体近正态，检验 μ 应该用：",o:["z 检验","t 检验，df = 15","t 检验，df = 14","卡方检验"],a:2,e:"小样本、σ 未知 → t 检验，自由度 n − 1 = 14。",trap:""},
+ {q:"把 α 由 0.05 降到 0.01，会：",o:["第一类错误变少，第二类变多","两类错误都变少","第二类错误变少","没有影响"],a:0,e:"α 与 β 此消彼长；要同时减少两者，只能增大样本量。",trap:""},
+ {q:"检验 H₀: p = 0.9 时，标准误的分母要用：",o:["p̂","p₀ = 0.9","(p̂+p₀)/2","s"],a:1,e:"检验时假设 H₀ 成立，所以用 p₀ 算标准误；置信区间没有这个假设，才用 p̂。",trap:"两个公式装反，是比例题最常见的扣分点。"}
+]},
+
+{n:9,zh:"两样本问题",en:"Two-Sample Problems",blurb:"从\"一组跟标准比\"进到\"两组互相比\"。关键是先判断：独立样本还是配对样本。",
+ secs:[
+ {no:"9.1",t:"两均值之差：大样本",en:"Comparison of Two Population Means: Large, Independent Samples",html:`
+  <p>两组互相独立、n₁ 与 n₂ 都 ≥ 30：</p>
+  <div class="fml"><span class="lbl">置信区间</span>(x̄<sub>1</sub> − x̄<sub>2</sub>) ± z<sub>α/2</sub> √(<span class="frac"><span>s<sub>1</sub>²</span><span>n<sub>1</sub></span></span> + <span class="frac"><span>s<sub>2</sub>²</span><span>n<sub>2</sub></span></span>)
+  <br><span class="lbl" style="margin-top:8px">检验统计量（H₀: μ₁ − μ₂ = 0）</span>Z = <span class="frac"><span>x̄<sub>1</sub> − x̄<sub>2</sub></span><span>√(s<sub>1</sub>²/n<sub>1</sub> + s<sub>2</sub>²/n<sub>2</sub>)</span></span></div>
+  <p>两个方差是<span class="k">相加</span>的，即使在求"差"。原因：独立随机变量相减时，变异会累积而不是抵消。</p>
+  <div class="eg"><b>判读</b>若 95% 区间包含 0，表示在 α = 0.05 下没有证据说两组不同。</div>`},
+ {no:"9.2",t:"两均值之差：小样本",en:"Comparison of Two Population Means: Small, Independent Samples",html:`
+  <p>小样本、两总体近正态、且可假设两方差相等时，先把两组的 s 合并：</p>
+  <div class="fml">s<sub>p</sub>² = <span class="frac"><span>(n<sub>1</sub> − 1)s<sub>1</sub>² + (n<sub>2</sub> − 1)s<sub>2</sub>²</span><span>n<sub>1</sub> + n<sub>2</sub> − 2</span></span>
+  <br><span class="lbl" style="margin-top:8px">检验统计量</span>T = <span class="frac"><span>x̄<sub>1</sub> − x̄<sub>2</sub></span><span>s<sub>p</sub>√(1/n<sub>1</sub> + 1/n<sub>2</sub>)</span></span> &nbsp; df = n<sub>1</sub> + n<sub>2</sub> − 2</div>
+  <div class="warn"><b>常错</b>自由度写成 n₁ + n₂ − 1。合并方差用的是"权重平均"，权重是各自的自由度，不是简单地 (s₁² + s₂²)/2。</div>`},
+ {no:"9.3",t:"配对样本",en:"Paired Samples",html:`
+  <p>同一批对象量两次（前测/后测），或有自然配对（双胞胎、左右手）。这时两组<span class="k">不独立</span>，绝不能用上面的公式。</p>
+  <p>做法很简单：先对每一对算差 d = x₁ − x₂，之后就当成<span class="k">一组单样本</span>处理。</p>
+  <div class="fml">T = <span class="frac"><span>d̄ − μ<sub>d</sub></span><span>s<sub>d</sub>/√n</span></span> &nbsp;&nbsp; df = n − 1，n 是对数</div>
+  <p>配对设计的好处：把个体之间的差异消掉，剩下的变异变小，检验力更高。</p>
+  <div class="warn"><b>常错</b>把配对数据当独立两样本做，自由度会虚增、结论容易出错。判断关键词：同一个人、前后、配对。</div>`},
+ {no:"9.4",t:"两比例之差",en:"Comparison of Two Population Proportions",html:`
+  <div class="fml"><span class="lbl">置信区间</span>(p̂<sub>1</sub> − p̂<sub>2</sub>) ± z<sub>α/2</sub>√(<span class="frac"><span>p̂<sub>1</sub>(1−p̂<sub>1</sub>)</span><span>n<sub>1</sub></span></span> + <span class="frac"><span>p̂<sub>2</sub>(1−p̂<sub>2</sub>)</span><span>n<sub>2</sub></span></span>)
+  <br><span class="lbl" style="margin-top:8px">检验（H₀: p₁ = p₂）先算合并比例</span>p̄ = <span class="frac"><span>x<sub>1</sub> + x<sub>2</sub></span><span>n<sub>1</sub> + n<sub>2</sub></span></span>
+  <br>Z = <span class="frac"><span>p̂<sub>1</sub> − p̂<sub>2</sub></span><span>√(p̄(1−p̄)(1/n<sub>1</sub> + 1/n<sub>2</sub>))</span></span></div>
+  <div class="warn"><b>常错</b>检验用合并的 p̄（因为 H₀ 说两者相等），区间用各自的 p̂。又是"检验与区间用不同标准误"的老问题。</div>`},
+ {no:"9.5",t:"样本量",en:"Sample Size Considerations",html:`
+  <p>两组取同样大小 n 时：</p>
+  <div class="fml"><span class="lbl">两均值</span>n = <span class="frac"><span>(z<sub>α/2</sub>)²(σ<sub>1</sub>² + σ<sub>2</sub>²)</span><span>E²</span></span>
+  <br><span class="lbl" style="margin-top:8px">两比例（最保守）</span>n = <span class="frac"><span>(z<sub>α/2</sub>)²(0.25 + 0.25)</span><span>E²</span></span></div>
+  <p>一样要向上取整。比较两组比单组更费样本，因为两边的变异都要算进去。</p>`}],
+ fml:[{t:"两均值（大样本）",h:`Z = <span class="frac"><span>x̄<sub>1</sub> − x̄<sub>2</sub></span><span>√(s<sub>1</sub>²/n<sub>1</sub> + s<sub>2</sub>²/n<sub>2</sub>)</span></span>`},
+      {t:"合并方差 t 检验",h:`s<sub>p</sub>² = <span class="frac"><span>(n<sub>1</sub>−1)s<sub>1</sub>² + (n<sub>2</sub>−1)s<sub>2</sub>²</span><span>n<sub>1</sub>+n<sub>2</sub>−2</span></span>, df = n<sub>1</sub>+n<sub>2</sub>−2`},
+      {t:"配对 t 检验",h:`T = <span class="frac"><span>d̄</span><span>s<sub>d</sub>/√n</span></span>, df = n − 1`},
+      {t:"两比例检验",h:`p̄ = (x<sub>1</sub>+x<sub>2</sub>)/(n<sub>1</sub>+n<sub>2</sub>)`}],
+ quiz:[
+ {q:"求两独立样本均值差的标准误时，两个方差要：",o:["相减","相加","相乘","取平均"],a:1,e:"独立变量相减，方差仍相加。变异会累积，不会抵消。",trap:"看到\"差\"就把方差相减。"},
+ {q:"20 名学员训练前后各测一次，比较进步应该用：",o:["独立两样本 t","配对 t","两比例 z","卡方"],a:1,e:"同一批人测两次是配对设计，先算差值再做单样本 t。",trap:"当成 40 个独立观测，自由度虚增。"},
+ {q:"合并 t 检验的自由度是：",o:["n₁ + n₂","n₁ + n₂ − 1","n₁ + n₂ − 2","n − 1"],a:2,e:"两组各消耗一个自由度去估计各自的均值，所以减 2。",trap:""},
+ {q:"两均值差的 95% 区间为 (−1.2, 3.8)，结论是：",o:["两组明显不同","没有足够证据说两组不同","第一组一定较大","计算错误"],a:1,e:"区间包含 0，表示\"差为 0\"是合理的可能，在 α = 0.05 下不拒绝 H₀。",trap:"把\"没有证据\"说成\"证明相同\"。"},
+ {q:"检验 H₀: p₁ = p₂ 时，标准误要用：",o:["各自的 p̂","合并比例 p̄","0.5","p₁ 的值"],a:1,e:"H₀ 假设两比例相等，所以把两组数据合起来估计那个共同的比例。",trap:"区间才用各自的 p̂。"},
+ {q:"配对设计的主要好处是：",o:["样本量可以更小","消除个体之间的差异，降低变异","不需要假设正态","自由度更大"],a:1,e:"同一个体自己跟自己比，个体差异被抵消，剩下的变异更小，更容易看出真实效果。",trap:"配对的自由度其实更小（n − 1），但换来更小的变异。"},
+ {q:"x̄₁ = 52、x̄₂ = 48、标准误 = 1.6，检验两均值相等的 Z 是：",o:["2.5","4.0","0.4","1.6"],a:0,e:"(52 − 48)/1.6 = 2.5，双尾 p ≈ 0.012，在 α = 0.05 下拒绝。",trap:""},
+ {q:"两独立大样本比较的前提不包括：",o:["两样本互相独立","n₁、n₂ 都够大","两组样本量必须相等","数据来自随机抽样"],a:2,e:"样本量不必相等，公式已经分别除以各自的 n。",trap:""}
+]},
+
+{n:10,zh:"相关与回归",en:"Correlation and Regression",blurb:"两个数值变量之间的关系：先看散点图，再算 r，最后拟合一条直线来预测。",
+ secs:[
+ {no:"10.1",t:"线性关系",en:"Linear Relationships Between Variables",html:`
+  <p>直线方程 y = a + bx（a 是截距，b 是斜率：x 每增加 1，y 平均变化 b）。</p>
+  <p>分析两个数值变量，<span class="k">第一步永远是画散点图 <span class="t-en">(scatter diagram)</span></span>：看关系是不是直线、方向是正是负、散得紧不紧、有没有离群点。</p>
+  <div class="warn"><b>常错</b>不看图就算 r。弯曲关系（例如抛物线）可能算出 r ≈ 0，但其实关系很强 — r 只量"直线"关系。</div>`},
+ {no:"10.2",t:"相关系数 r",en:"The Linear Correlation Coefficient",html:`
+  <div class="fml">r = <span class="frac"><span>SS<sub>xy</sub></span><span>√(SS<sub>xx</sub> · SS<sub>yy</sub>)</span></span>
+  <br><span class="lbl" style="margin-top:8px">其中</span>SS<sub>xy</sub> = Σxy − (Σx)(Σy)/n，SS<sub>xx</sub> = Σx² − (Σx)²/n，SS<sub>yy</sub> = Σy² − (Σy)²/n</div>
+  <p>性质：−1 ≤ r ≤ 1；r &gt; 0 同方向，r &lt; 0 反方向；|r| 越接近 1 点越贴近直线。r 没有单位，换算单位不会改变它。</p>
+  <div class="warn"><b>常错</b><span class="k">相关不等于因果</span>。两个变量一起动，可能是第三个变量在背后推（潜伏变量）。这是整章最重要的一句话。</div>`,demo:"reg"},
+ {no:"10.3",t:"带随机性的线性模型",en:"Modelling Linear Relationships with Randomness Present",html:`
+  <p>真实数据不会正好在一条线上，所以模型写成：</p>
+  <div class="fml">y = β<sub>0</sub> + β<sub>1</sub>x + ε</div>
+  <p>β₀、β₁ 是未知参数（像 μ 那样），ε 是随机误差。假设：对每个 x，ε 的均值为 0、标准差 σ 固定、服从正态且彼此独立。</p>
+  <p>我们用样本算出的 a、b 去估计 β₀、β₁ — 又回到"用统计量估参数"的老套路。</p>`},
+ {no:"10.4",t:"最小二乘回归线",en:"The Least Squares Regression Line",html:`
+  <p>最小二乘法 <span class="t-en">(least squares)</span>：选一条线，使<span class="k">所有残差平方和最小</span>。残差 = 实际 y − 预测 ŷ。</p>
+  <div class="fml">ŷ = a + bx，&nbsp; b = <span class="frac"><span>SS<sub>xy</sub></span><span>SS<sub>xx</sub></span></span>，&nbsp; a = ȳ − b x̄</div>
+  <p>这条线一定通过点 (x̄, ȳ)，而且残差和为 0。</p>
+  <div class="eg"><b>例</b>二手车的车龄 x 与售价 y：若 b = −1.2（千元/年），表示车龄每多一年，售价平均少 1.2 千元。</div>
+  <div class="warn"><b>常错</b><span class="k">外推 <span class="t-en">(extrapolation)</span></span>：把 x 代到数据范围以外去预测，非常不可靠。数据只有 1–10 年的车，不要拿去预测 30 年车的价钱。</div>`,demo:"reg"},
+ {no:"10.5",t:"对斜率的推断",en:"Statistical Inferences About β₁",html:`
+  <p>要问"x 与 y 到底有没有线性关系"，就检验斜率：</p>
+  <div class="fml">H<sub>0</sub>: β<sub>1</sub> = 0 &nbsp;&nbsp; T = <span class="frac"><span>b − β<sub>1</sub></span><span>s<sub>b</sub></span></span> &nbsp;&nbsp; df = n − 2
+  <br><span class="lbl" style="margin-top:8px">区间</span>b ± t<sub>α/2</sub> s<sub>b</sub></div>
+  <p>df 是 n − 2，因为估计了 a 与 b 两个参数。拒绝 H₀ 表示 x 对预测 y 确实有用。</p>`},
+ {no:"10.6",t:"决定系数 r²",en:"The Coefficient of Determination",html:`
+  <p><span class="k">r²</span> = y 的总变异中，能被回归线（也就是被 x）解释的比例。</p>
+  <div class="fml">r² = <span class="frac"><span>SS<sub>yy</sub> − SSE</span><span>SS<sub>yy</sub></span></span>，&nbsp; 0 ≤ r² ≤ 1</div>
+  <div class="eg"><b>例</b>r = −0.8 → r² = 0.64，即 64% 的变异可由 x 解释，剩下 36% 由其他因素或随机造成。</div>
+  <div class="warn"><b>常错</b>由 r² 反推 r 时要自己补回正负号，符号看斜率 b。</div>`},
+ {no:"10.7",t:"估计与预测",en:"Estimation and Prediction",html:`
+  <p>同一个 ŷ 有两种区间，宽度不同：</p>
+  <ul>
+   <li><span class="k">均值的置信区间</span>：估计"x 为某值时 y 的平均"。较窄。</li>
+   <li><span class="k">预测区间 <span class="t-en">(prediction interval)</span></span>：预测"某一个新个体的 y"。较宽，因为除了估计误差还多了个体的随机波动。</li>
+  </ul>
+  <p>两种区间都在 x = x̄ 处最窄，离 x̄ 越远越宽 — 这也说明了为什么外推危险。</p>`}],
+ fml:[{t:"相关系数",h:`r = SS<sub>xy</sub> / √(SS<sub>xx</sub>SS<sub>yy</sub>)`},
+      {t:"回归线",h:`ŷ = a + bx, &nbsp; b = SS<sub>xy</sub>/SS<sub>xx</sub>, &nbsp; a = ȳ − b x̄`},
+      {t:"斜率检验",h:`T = (b − β<sub>1</sub>)/s<sub>b</sub>, &nbsp; df = n − 2`},
+      {t:"决定系数",h:`r² = 被 x 解释的变异比例`}],
+ quiz:[
+ {q:"r = −0.92 表示：",o:["强的负向线性关系","弱的负向关系","x 造成 y 下降","计算错误"],a:0,e:"|r| 接近 1 表示点很贴近直线，负号表示 x 增加时 y 减少。相关强弱不代表因果。",trap:"把负号当成\"关系弱\"。"},
+ {q:"下列哪一句正确？",o:["r = 0.95 证明 x 造成 y","相关高只表示同步变化，可能有潜伏变量","r 有单位","r 可以大于 1"],a:1,e:"相关不等于因果，必须靠实验设计才能谈因果。r 无单位，且限制在 −1 到 1。",trap:""},
+ {q:"回归线 ŷ = 25 − 1.5x 中的 −1.5 表示：",o:["x = 0 时 ŷ = −1.5","x 每增加 1，ŷ 平均减少 1.5","相关系数","误差"],a:1,e:"斜率就是 x 每增加一单位时 ŷ 的平均变化量；25 才是截距。",trap:""},
+ {q:"最小二乘法最小化的是：",o:["残差之和","残差绝对值之和","残差平方和","斜率"],a:2,e:"残差之和本来就是 0，没有用；最小二乘让残差平方和最小。",trap:""},
+ {q:"r = 0.6，则 r² 与其含义是：",o:["0.36，36% 的 y 变异可由 x 解释","0.6，60% 可解释","0.36，误差为 36%","0.775"],a:0,e:"r² = 0.36，表示回归能解释 36% 的变异，其余 64% 来自别的因素。",trap:"把 r 当成解释比例。"},
+ {q:"数据的 x 范围是 2 到 10，拿 x = 25 来预测：",o:["完全可以","属于外推，不可靠","会让 r 变大","要改用 z"],a:1,e:"回归关系只在观测范围内有证据支持，超出范围的形状完全未知。",trap:""},
+ {q:"检验斜率 β₁ = 0 的自由度是：",o:["n − 1","n − 2","n","n + 1"],a:1,e:"估计了截距与斜率两个参数，所以 df = n − 2。",trap:"沿用单样本 t 的 n − 1。"},
+ {q:"对同一个 x 值，预测某一辆车的价钱的区间，会比估计该 x 下平均价钱的区间：",o:["更窄","一样宽","更宽","不能比较"],a:2,e:"预测个体要多算一份个体随机波动，所以预测区间更宽。",trap:""}
+]},
+
+{n:11,zh:"卡方检验与 F 检验",en:"Chi-Square Tests and F-Tests",blurb:"处理类别资料的次数表，以及一次比较多组方差或多组均值（ANOVA）。",
+ secs:[
+ {no:"11.1",t:"拟合优度检验",en:"Chi-Square Tests for Goodness of Fit",html:`
+  <p>问题：观察到的次数分布，符不符合某个声称的比例？</p>
+  <div class="fml">χ² = Σ <span class="frac"><span>(O − E)²</span><span>E</span></span> &nbsp;&nbsp; df = k − 1（k 是类别数）
+  <br><span class="lbl" style="margin-top:8px">期望次数</span>E = n × 该类别假设的比例</div>
+  <p>χ² 只能是正的，而且<span class="k">永远是右尾检验</span>：O 与 E 差越多，χ² 越大，越该拒绝 H₀。条件：每个 E 至少 5。</p>
+  <div class="eg"><b>例</b>掷骰子 120 次，若公正，每面 E = 20。实际各面次数与 20 差得越远，χ² 越大。</div>
+  <div class="warn"><b>常错</b>分母用 O 而不是 E；或把百分比直接代进公式 — χ² 必须用<span class="k">实际次数</span>。</div>`,demo:"chi"},
+ {no:"11.2",t:"独立性检验",en:"Chi-Square Tests for Independence",html:`
+  <p>用列联表 <span class="t-en">(contingency table)</span> 看两个类别变量有没有关联。H₀：两变量独立。</p>
+  <div class="fml">E = <span class="frac"><span>行合计 × 列合计</span><span>总计</span></span> &nbsp;&nbsp; df = (行数 − 1)(列数 − 1)</div>
+  <p>统计量还是 Σ(O − E)²/E，仍是右尾。拒绝 H₀ 表示两个变量有关联，但同样<span class="k">不能推出因果</span>。</p>
+  <div class="eg"><b>例</b>2×3 表的 df = (2−1)(3−1) = 2。</div>`},
+ {no:"11.3",t:"两方差相等的 F 检验",en:"F-tests for Equality of Two Variances",html:`
+  <div class="fml">F = <span class="frac"><span>s<sub>1</sub>²</span><span>s<sub>2</sub>²</span></span> &nbsp;&nbsp; df<sub>1</sub> = n<sub>1</sub> − 1（分子），df<sub>2</sub> = n<sub>2</sub> − 1（分母）</div>
+  <p>F 分布右偏、只取正值，有两个自由度。习惯把较大的 s² 放分子，这样 F ≥ 1，只查右尾表。</p>
+  <p>用途之一：判断 9.2 节的"两方差相等"假设成不成立。前提是两总体都近似正态，而且 F 检验对这个假设相当敏感。</p>`},
+ {no:"11.4",t:"单因子方差分析",en:"F-Tests in One-Way ANOVA",html:`
+  <p>要比较 3 组以上的均值，不可以两两做 t 检验（做的次数越多，至少犯一次第一类错误的机会越大）。改用 <span class="k">ANOVA</span>。</p>
+  <p>H₀: μ₁ = μ₂ = … = μ<sub>k</sub>；H<sub>a</sub>：至少有一组不同（不是"全部都不同"）。</p>
+  <div class="fml">F = <span class="frac"><span>MST（组间均方）</span><span>MSE（组内均方）</span></span>
+  <br><span class="lbl" style="margin-top:8px">自由度</span>df<sub>1</sub> = k − 1，df<sub>2</sub> = n − k</div>
+  <p>道理：如果各组真的一样，组间差异应该和组内的随机波动差不多，F ≈ 1。F 明显大于 1，就表示组间差异大到不像是随机造成的。仍是右尾检验。</p>
+  <p>前提：各组独立、各组近似正态、<span class="k">方差大致相等</span>。</p>
+  <div class="warn"><b>常错</b>拒绝 H₀ 只说明"至少有一组不同"，要知道是哪几组不同，还得做事后比较。</div>`}],
+ fml:[{t:"卡方统计量",h:`χ² = Σ(O − E)²/E &nbsp;（右尾检验）`},
+      {t:"拟合优度自由度",h:`df = k − 1`},
+      {t:"独立性检验",h:`E = 行合计×列合计/总计, &nbsp; df = (r−1)(c−1)`},
+      {t:"F 检验与 ANOVA",h:`F = s<sub>1</sub>²/s<sub>2</sub>² &nbsp;|&nbsp; F = MST/MSE, df = k−1, n−k`}],
+ quiz:[
+ {q:"卡方统计量的分母是：",o:["观察次数 O","期望次数 E","n","O + E"],a:1,e:"χ² = Σ(O − E)²/E，分母永远是期望次数。",trap:"分母写成 O，是最常见的计算错误。"},
+ {q:"4 个类别的拟合优度检验，自由度是：",o:["3","4","5","1"],a:0,e:"df = k − 1 = 3。",trap:"把列联表的公式用到拟合优度上。"},
+ {q:"3×4 列联表做独立性检验，df =",o:["12","7","6","11"],a:2,e:"(3−1)(4−1) = 6。",trap:"用 rc − 1 或 r + c − 2。"},
+ {q:"卡方检验的拒绝域在：",o:["左尾","右尾","双尾","看 H_a"],a:1,e:"χ² 衡量 O 与 E 的偏离程度，只会是正值，偏离越大值越大，所以永远看右尾。",trap:""},
+ {q:"比较 4 组均值，正确做法是：",o:["做 6 次两两 t 检验","做一次单因子 ANOVA","做卡方检验","做 4 次单样本 t"],a:1,e:"多次两两比较会推高整体第一类错误率，ANOVA 用一次检验回答\"是否全部相等\"。",trap:""},
+ {q:"ANOVA 拒绝 H₀ 表示：",o:["所有组的均值都不同","至少有一组与其他不同","最大与最小组一定有差异且已知是哪组","各组方差不同"],a:1,e:"F 检验只告诉你\"不全相等\"，要知道哪几组不同需要做事后比较。",trap:"直接说\"全部都不同\"。"},
+ {q:"ANOVA 中 F 接近 1 通常表示：",o:["组间差异远大于组内","组间差异和随机波动差不多","资料有误","一定拒绝 H₀"],a:1,e:"F = MST/MSE，当组间变异和组内变异相当时 F ≈ 1，没有证据说均值不同。",trap:""},
+ {q:"F 分布的形状是：",o:["对称钟形","右偏，只取正值","左偏","均匀"],a:1,e:"F 是两个方差之比，不可能为负，分布右偏，并且由两个自由度决定形状。",trap:"把 F 当成 t 那样对称。"}
+]}
+);
+</script>
+<script>
+/* ============ storage ============ */
+var KEY="bstats-v1";
+var S={read:{},quiz:{},last:null,theme:null};
+try{var raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+if(S.theme)document.documentElement.setAttribute("data-theme",S.theme);
+
+/* ============ helpers ============ */
+function $(s,r){return (r||document).querySelector(s);}
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function cv(c,h){var d=window.devicePixelRatio||1,w=c.clientWidth||320;c.width=Math.round(w*d);c.height=Math.round(h*d);
+  c.style.height=h+"px";var x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);return {x:x,w:w,h:h};}
+function erf(z){var t=1/(1+0.3275911*Math.abs(z));
+  var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z);
+  return z>=0?y:-y;}
+function Phi(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function pdf(z){return Math.exp(-z*z/2)/Math.sqrt(2*Math.PI);}
+function gauss(){var u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function mean(a){return a.reduce(function(s,x){return s+x;},0)/a.length;}
+function sd(a){var m=mean(a);return Math.sqrt(a.reduce(function(s,x){return s+(x-m)*(x-m);},0)/(a.length-1));}
+function median(a){var b=a.slice().sort(function(p,q){return p-q;}),n=b.length;
+  return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;}
+function nCk(n,k){var r=1;for(var i=1;i<=k;i++)r=r*(n-k+i)/i;return r;}
+function f2(x,d){return Number(x).toFixed(d==null?2:d);}
+
+/* ============ hero ============ */
+function hero(){
+  var c=$("#heroCv");if(!c)return;var g=cv(c,150),x=g.x,w=g.w,h=g.h;
+  var data=[62,64,65,66,66,67,67,68,68,68,69,69,69,70,70,70,70,71,71,71,72,72,72,73,73,74,75,76,78,81];
+  var m=mean(data),s=sd(data),lo=58,hi=84;
+  var px=function(v){return 26+(v-lo)/(hi-lo)*(w-46);};
+  var base=h-26, jade=css("--jade"), ink=css("--ink-faint");
+  x.strokeStyle=css("--line");x.lineWidth=1;x.beginPath();x.moveTo(20,base+.5);x.lineTo(w-14,base+.5);x.stroke();
+  x.fillStyle=ink;x.font="11px "+css("--sans").split(",")[0]+",sans-serif";
+  [60,65,70,75,80].forEach(function(t){x.fillText(String(t),px(t)-7,base+16);
+    x.beginPath();x.moveTo(px(t),base);x.lineTo(px(t),base+4);x.strokeStyle=css("--line");x.stroke();});
+  [m-s,m+s].forEach(function(v){x.save();x.setLineDash([3,4]);x.strokeStyle=jade;x.globalAlpha=.55;
+    x.beginPath();x.moveTo(px(v),18);x.lineTo(px(v),base);x.stroke();x.restore();});
+  x.strokeStyle=jade;x.lineWidth=2;x.beginPath();x.moveTo(px(m),10);x.lineTo(px(m),base);x.stroke();
+  x.fillStyle=jade;x.font="600 11px sans-serif";x.fillText("x̄ = "+f2(m,1),px(m)+5,15);
+  var counts={},reduce=matchMedia("(prefers-reduced-motion:reduce)").matches,i=0;
+  function drawDot(v,k){var cx=px(v),cy=base-7-k*9;
+    x.beginPath();x.arc(cx,cy,3.4,0,7);x.fillStyle=jade;x.globalAlpha=.85;x.fill();x.globalAlpha=1;}
+  function step(){
+    if(i>=data.length)return;
+    var v=data[i];counts[v]=(counts[v]||0)+1;drawDot(v,counts[v]-1);i++;
+    if(reduce){while(i<data.length){var u=data[i];counts[u]=(counts[u]||0)+1;drawDot(u,counts[u]-1);i++;}return;}
+    setTimeout(step,26);
+  }
+  step();
+}
+
+/* ============ demos ============ */
+var DEMOS={};
+DEMOS.dot=function(box){
+  box.innerHTML='<h4>拖动数据点</h4><p class="hint">按住圆点左右拖，看 x̄、中位数、s 怎么变。把一点拖到很远，就明白为什么中位数比较稳。</p>'+
+   '<canvas></canvas><div class="ctrl"><button class="btn-s" data-a="reset">复原</button>'+
+   '<button class="btn-s" data-a="out">加一个离群值</button></div>'+
+   '<div class="readout"><span>x̄ <b class="m">–</b></span><span>中位数 <b class="md">–</b></span><span>s <b class="s">–</b></span></div>';
+  var c=box.querySelector("canvas"),init=[12,15,16,18,19,20,22,24,27],d=init.slice(),drag=-1;
+  function draw(){
+    var g=cv(c,130),x=g.x,w=g.w,h=g.h,lo=0,hi=60,base=h-24;
+    var px=function(v){return 22+v/hi*(w-40);};
+    x.strokeStyle=css("--line");x.beginPath();x.moveTo(16,base+.5);x.lineTo(w-10,base+.5);x.stroke();
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";
+    for(var t=0;t<=60;t+=10){x.fillText(String(t),px(t)-6,base+14);}
+    var m=mean(d),md=median(d),s=sd(d);
+    x.strokeStyle=css("--jade");x.lineWidth=2;x.beginPath();x.moveTo(px(m),12);x.lineTo(px(m),base);x.stroke();
+    x.strokeStyle=css("--marker");x.setLineDash([4,3]);x.beginPath();x.moveTo(px(md),12);x.lineTo(px(md),base);x.stroke();x.setLineDash([]);
+    x.font="600 10px sans-serif";x.fillStyle=css("--jade");x.fillText("x̄",px(m)+4,14);
+    x.fillStyle=css("--marker");x.fillText(LZ("中位","median"),px(md)+4,26);
+    var seen={};d.forEach(function(v,i){var k=Math.round(v);seen[k]=(seen[k]||0)+1;
+      x.beginPath();x.arc(px(v),base-9-(seen[k]-1)*10,5.5,0,7);
+      x.fillStyle=i===drag?css("--marker"):css("--jade");x.fill();});
+    box.querySelector(".m").textContent=f2(m,2);
+    box.querySelector(".md").textContent=f2(md,2);
+    box.querySelector(".s").textContent=f2(s,2);
+    c._px=px;c._base=base;
+  }
+  function hit(ev){var r=c.getBoundingClientRect(),mx=ev.clientX-r.left,best=-1,bd=1e9;
+    d.forEach(function(v,i){var dx=Math.abs(c._px(v)-mx);if(dx<bd){bd=dx;best=i;}});
+    return bd<22?best:-1;}
+  c.addEventListener("pointerdown",function(e){drag=hit(e);if(drag>=0){c.setPointerCapture(e.pointerId);draw();}});
+  c.addEventListener("pointermove",function(e){if(drag<0)return;
+    var r=c.getBoundingClientRect(),w=c.clientWidth,v=(e.clientX-r.left-22)/(w-40)*60;
+    d[drag]=Math.max(0,Math.min(60,Math.round(v*2)/2));draw();});
+  ["pointerup","pointercancel"].forEach(function(t){c.addEventListener(t,function(){drag=-1;draw();});});
+  box.addEventListener("click",function(e){var a=e.target.getAttribute&&e.target.getAttribute("data-a");
+    if(a==="reset"){d=init.slice();draw();}
+    if(a==="out"){d=d.concat([58]);draw();}});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.dice=function(box){
+  box.innerHTML='<h4>两颗骰子的样本空间</h4><p class="hint">36 种等可能结果。选一个事件，看它盖住几格。</p>'+
+   '<canvas></canvas><div class="seg">'+
+   '<button data-e="0" aria-pressed="true">和 = 7</button><button data-e="1">和 ≥ 9</button>'+
+   '<button data-e="2">至少一个 6</button><button data-e="3">两颗相同</button></div>'+
+   '<div class="readout"><span>有利结果 <b class="k">–</b> / 36</span><span>P(E) = <b class="p">–</b></span></div>';
+  var c=box.querySelector("canvas"),ev=0;
+  var tests=[function(a,b){return a+b===7;},function(a,b){return a+b>=9;},
+             function(a,b){return a===6||b===6;},function(a,b){return a===b;}];
+  function draw(){
+    var g=cv(c,230),x=g.x,w=g.w,h=g.h,pad=22,cell=Math.min((w-pad-6)/6,(h-pad-6)/6);
+    x.font="11px sans-serif";var k=0;
+    for(var a=1;a<=6;a++)for(var b=1;b<=6;b++){
+      var X=pad+(b-1)*cell,Y=pad+(a-1)*cell,on=tests[ev](a,b);if(on)k++;
+      x.fillStyle=on?css("--jade"):css("--surface2");x.fillRect(X,Y,cell-2,cell-2);
+      x.fillStyle=on?css("--surface"):css("--ink-faint");
+      x.fillText(a+","+b,X+cell/2-10,Y+cell/2+4);}
+    x.fillStyle=css("--ink-faint");
+    for(var i=1;i<=6;i++){x.fillText(String(i),pad+(i-1)*cell+cell/2-3,14);x.fillText(String(i),6,pad+(i-1)*cell+cell/2+4);}
+    box.querySelector(".k").textContent=k;
+    box.querySelector(".p").textContent=f2(k/36,3)+" ("+k+"/36)";
+  }
+  box.querySelectorAll(".seg button").forEach(function(b){b.onclick=function(){
+    ev=+b.getAttribute("data-e");
+    box.querySelectorAll(".seg button").forEach(function(o){o.setAttribute("aria-pressed",o===b);});draw();};});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.binom=function(box){
+  box.innerHTML='<h4>二项分布的形状</h4><p class="hint">调 n 和 p，看分布怎么从偏斜变成钟形。</p><canvas></canvas>'+
+   '<div class="ctrl"><label>n <input type="range" min="1" max="40" value="20"><span class="val vn">20</span></label>'+
+   '<label>p <input type="range" min="5" max="95" value="30"><span class="val vp">0.30</span></label></div>'+
+   '<div class="readout"><span>μ = np <b class="mu">–</b></span><span>σ <b class="sg">–</b></span></div>';
+  var c=box.querySelector("canvas"),R=box.querySelectorAll("input");
+  function draw(){
+    var n=+R[0].value,p=+R[1].value/100;
+    box.querySelector(".vn").textContent=n;box.querySelector(".vp").textContent=f2(p,2);
+    var g=cv(c,180),x=g.x,w=g.w,h=g.h,base=h-22,pad=16;
+    var pr=[],mx=0;for(var k=0;k<=n;k++){var v=nCk(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);pr.push(v);if(v>mx)mx=v;}
+    var bw=(w-pad*2)/(n+1);
+    for(var k2=0;k2<=n;k2++){var bh=pr[k2]/mx*(base-16);
+      x.fillStyle=css("--jade");x.globalAlpha=.85;
+      x.fillRect(pad+k2*bw+.6,base-bh,Math.max(1,bw-1.2),bh);x.globalAlpha=1;}
+    x.strokeStyle=css("--line");x.beginPath();x.moveTo(pad,base+.5);x.lineTo(w-pad,base+.5);x.stroke();
+    var mu=n*p,sg=Math.sqrt(n*p*(1-p));
+    x.strokeStyle=css("--marker");x.setLineDash([4,3]);x.beginPath();
+    x.moveTo(pad+(mu+.5)*bw,8);x.lineTo(pad+(mu+.5)*bw,base);x.stroke();x.setLineDash([]);
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";
+    x.fillText("0",pad,base+13);x.fillText(String(n),w-pad-8,base+13);
+    box.querySelector(".mu").textContent=f2(mu,2);
+    box.querySelector(".sg").textContent=f2(sg,3);
+  }
+  R.forEach(function(r){r.oninput=draw;});draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.normal=function(box){
+  box.innerHTML='<h4>标准正态曲线下的面积</h4><p class="hint">拖动两条竖线，阴影面积就是概率。先看图再查表，不容易做反。</p>'+
+   '<canvas></canvas><div class="seg"><button data-p="l">左尾 P(Z&lt;z)</button>'+
+   '<button data-p="m" aria-pressed="true">中间</button><button data-p="r">右尾 P(Z&gt;z)</button>'+
+   '<button data-p="95">95% 区间</button></div>'+
+   '<div class="readout"><span>a = <b class="a">–</b></span><span>b = <b class="b">–</b></span><span>面积 = <b class="ar">–</b></span></div>';
+  var c=box.querySelector("canvas"),a=-1.96,b=1.96,drag=0,LO=-3.6,HI=3.6;
+  function px(v,w){return 18+(v-LO)/(HI-LO)*(w-36);}
+  function draw(){
+    var g=cv(c,180),x=g.x,w=g.w,h=g.h,base=h-20,top=14,sc=(base-top)/pdf(0);
+    x.beginPath();x.moveTo(px(a,w),base);
+    for(var z=a;z<=b;z+=0.02)x.lineTo(px(z,w),base-pdf(z)*sc);
+    x.lineTo(px(b,w),base);x.closePath();x.fillStyle=css("--jade");x.globalAlpha=.3;x.fill();x.globalAlpha=1;
+    x.beginPath();for(var z2=LO;z2<=HI;z2+=0.02){var X=px(z2,w),Y=base-pdf(z2)*sc;z2===LO?x.moveTo(X,Y):x.lineTo(X,Y);}
+    x.strokeStyle=css("--jade");x.lineWidth=2;x.stroke();
+    x.strokeStyle=css("--line");x.lineWidth=1;x.beginPath();x.moveTo(10,base+.5);x.lineTo(w-10,base+.5);x.stroke();
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";
+    for(var t=-3;t<=3;t++){x.fillText(String(t),px(t,w)-3,base+13);}
+    [[a,"a"],[b,"b"]].forEach(function(o){var X=px(o[0],w);
+      x.strokeStyle=css("--marker");x.lineWidth=2;x.beginPath();x.moveTo(X,top-8);x.lineTo(X,base);x.stroke();
+      x.fillStyle=css("--marker");x.beginPath();x.arc(X,top-8,5,0,7);x.fill();});
+    box.querySelector(".a").textContent=a<=LO+.05?"−∞":f2(a);
+    box.querySelector(".b").textContent=b>=HI-.05?"+∞":f2(b);
+    box.querySelector(".ar").textContent=f2(Phi(b)-Phi(a),4);
+  }
+  function loc(e){var r=c.getBoundingClientRect(),w=c.clientWidth;
+    return LO+(e.clientX-r.left-18)/(w-36)*(HI-LO);}
+  c.addEventListener("pointerdown",function(e){var v=loc(e);
+    drag=Math.abs(v-a)<Math.abs(v-b)?1:2;c.setPointerCapture(e.pointerId);});
+  c.addEventListener("pointermove",function(e){if(!drag)return;var v=Math.max(LO,Math.min(HI,loc(e)));
+    if(drag===1)a=Math.min(v,b-0.05);else b=Math.max(v,a+0.05);draw();});
+  ["pointerup","pointercancel"].forEach(function(t){c.addEventListener(t,function(){drag=0;});});
+  box.querySelectorAll(".seg button").forEach(function(btn){btn.onclick=function(){
+    var p=btn.getAttribute("data-p");
+    if(p==="l"){a=LO;b=-1;}if(p==="m"){a=-1;b=1;}if(p==="r"){a=1.645;b=HI;}if(p==="95"){a=-1.96;b=1.96;}
+    box.querySelectorAll(".seg button").forEach(function(o){o.setAttribute("aria-pressed",o===btn);});draw();};});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.clt=function(box){
+  box.innerHTML='<h4>中心极限定理</h4><p class="hint">总体再怎么歪，只要 n 够大，x̄ 的分布都会变钟形。</p>'+
+   '<canvas></canvas><div class="seg"><button data-s="0" aria-pressed="true">均匀总体</button>'+
+   '<button data-s="1">右偏总体</button><button data-s="2">双峰总体</button></div>'+
+   '<div class="ctrl"><label>每次抽 n = <input type="range" min="1" max="50" value="5"><span class="val vn">5</span></label></div>'+
+   '<div class="ctrl"><button class="btn-s" data-a="1">抽 1 次</button><button class="btn-s pri" data-a="300">抽 300 次</button>'+
+   '<button class="btn-s" data-a="0">清空</button></div>'+
+   '<div class="readout"><span>已抽 <b class="c">0</b> 个 x̄</span><span>x̄ 的平均 <b class="m">–</b></span>'+
+   '<span>实测标准差 <b class="s">–</b></span><span>理论 σ/√n <b class="t">–</b></span></div>';
+  var c=box.querySelector("canvas"),shape=0,means=[],R=box.querySelector("input");
+  function pop(){ // 返回一个总体抽样值，范围大致 0-10
+    if(shape===0)return Math.random()*10;
+    if(shape===1){var u=Math.random();return Math.min(10,-Math.log(1-u)*2.2);}
+    return Math.random()<0.5?1.2+Math.random()*1.6:7.2+Math.random()*1.6;}
+  function popSD(){var a=[];for(var i=0;i<20000;i++)a.push(pop());return sd(a);}
+  var PSD=popSD();
+  function drawPop(x,w,y0,hh){
+    var bins=new Array(30).fill(0),N=4000;
+    for(var i=0;i<N;i++){var v=pop();var k=Math.min(29,Math.max(0,Math.floor(v/10*30)));bins[k]++;}
+    var mx=Math.max.apply(null,bins),bw=(w-32)/30;
+    for(var k2=0;k2<30;k2++){var bh=bins[k2]/mx*hh;
+      x.fillStyle=css("--ink-faint");x.globalAlpha=.35;
+      x.fillRect(16+k2*bw,y0+hh-bh,bw-1,bh);x.globalAlpha=1;}
+  }
+  function draw(){
+    var g=cv(c,210),x=g.x,w=g.w,h=g.h;
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";
+    x.fillText(LZ("总体分布","population"),16,12);drawPop(x,w,16,52);
+    x.fillText(LZ("x̄ 的分布","distribution of x̄"),16,90);
+    var y0=96,hh=h-y0-16,B=48,bins=new Array(B).fill(0);
+    means.forEach(function(m){var k=Math.min(B-1,Math.max(0,Math.floor(m/10*B)));bins[k]++;});
+    var mx=Math.max(1,Math.max.apply(null,bins)),bw=(w-32)/B;
+    for(var k=0;k<B;k++){var bh=bins[k]/mx*hh;x.fillStyle=css("--jade");
+      x.fillRect(16+k*bw,y0+hh-bh,Math.max(1,bw-.8),bh);}
+    x.strokeStyle=css("--line");x.beginPath();x.moveTo(16,y0+hh+.5);x.lineTo(w-16,y0+hh+.5);x.stroke();
+    var n=+R.value;
+    box.querySelector(".c").textContent=means.length;
+    box.querySelector(".m").textContent=means.length?f2(mean(means),3):"–";
+    box.querySelector(".s").textContent=means.length>1?f2(sd(means),3):"–";
+    box.querySelector(".t").textContent=f2(PSD/Math.sqrt(n),3);
+  }
+  function drawSamples(k){var n=+R.value;
+    for(var i=0;i<k;i++){var s=0;for(var j=0;j<n;j++)s+=pop();means.push(s/n);}draw();}
+  R.oninput=function(){box.querySelector(".vn").textContent=R.value;means=[];draw();};
+  box.querySelectorAll(".btn-s").forEach(function(b){b.onclick=function(){
+    var a=+b.getAttribute("data-a");if(a===0)means=[];else drawSamples(a);draw();};});
+  box.querySelectorAll(".seg button").forEach(function(b){b.onclick=function(){
+    shape=+b.getAttribute("data-s");means=[];PSD=popSD();
+    box.querySelectorAll(".seg button").forEach(function(o){o.setAttribute("aria-pressed",o===b);});draw();};});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.ci=function(box){
+  box.innerHTML='<h4>95% 到底在说什么</h4><p class="hint">总体 μ = 50（绿线）。每条横线是一次抽样做出的 95% 区间；红色的那些没盖住 μ。</p>'+
+   '<canvas></canvas><div class="ctrl"><button class="btn-s pri" data-a="20">再抽 20 组</button>'+
+   '<button class="btn-s" data-a="0">清空</button></div>'+
+   '<div class="readout"><span>区间数 <b class="c">0</b></span><span>盖住 μ <b class="h">0</b></span>'+
+   '<span>实际覆盖率 <b class="r">–</b></span></div>';
+  var c=box.querySelector("canvas"),rows=[],MU=50,SIG=10,n=25;
+  function add(k){for(var i=0;i<k;i++){var s=0;for(var j=0;j<n;j++)s+=MU+SIG*gauss();
+    var m=s/n,e=1.96*SIG/Math.sqrt(n);rows.push([m-e,m+e,m]);}
+    if(rows.length>40)rows=rows.slice(rows.length-40);}
+  function draw(){
+    var g=cv(c,200),x=g.x,w=g.w,h=g.h,lo=40,hi=60;
+    var px=function(v){return 14+(v-lo)/(hi-lo)*(w-28);};
+    x.strokeStyle=css("--jade");x.lineWidth=2;x.beginPath();x.moveTo(px(MU),4);x.lineTo(px(MU),h-14);x.stroke();
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";x.fillText("μ = 50",px(MU)+4,10);
+    var show=rows.slice(-Math.floor((h-20)/5)),step=(h-20)/Math.max(1,show.length);
+    show.forEach(function(r,i){var y=8+i*step,ok=r[0]<=MU&&MU<=r[1];
+      x.strokeStyle=ok?css("--ink-faint"):css("--marker");x.lineWidth=ok?1.6:2.4;
+      x.beginPath();x.moveTo(px(r[0]),y);x.lineTo(px(r[1]),y);x.stroke();
+      x.fillStyle=ok?css("--ink-faint"):css("--marker");x.beginPath();x.arc(px(r[2]),y,1.8,0,7);x.fill();});
+    var tot=box._tot||0,hit=box._hit||0;
+    box.querySelector(".c").textContent=tot;box.querySelector(".h").textContent=hit;
+    box.querySelector(".r").textContent=tot?f2(hit/tot*100,1)+"%":"–";
+  }
+  box.querySelectorAll(".btn-s").forEach(function(b){b.onclick=function(){
+    var a=+b.getAttribute("data-a");
+    if(a===0){rows=[];box._tot=0;box._hit=0;}
+    else{var before=rows.length;add(a);
+      rows.slice(Math.max(0,rows.length-a)).forEach(function(r){box._tot=(box._tot||0)+1;
+        if(r[0]<=MU&&MU<=r[1])box._hit=(box._hit||0)+1;});}
+    draw();};});
+  add(20);box._tot=0;box._hit=0;rows.forEach(function(r){box._tot++;if(r[0]<=MU&&MU<=r[1])box._hit++;});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.pval=function(box){
+  box.innerHTML='<h4>p 值是哪一块面积</h4><p class="hint">拖 z 值，看尾部面积怎么变。α = 0.05 时，阴影小于 5% 就拒绝 H₀。</p>'+
+   '<canvas></canvas><div class="seg"><button data-t="r" aria-pressed="true">右尾</button>'+
+   '<button data-t="l">左尾</button><button data-t="2">双尾</button></div>'+
+   '<div class="ctrl"><label>z = <input type="range" min="-350" max="350" value="200"><span class="val vz">2.00</span></label></div>'+
+   '<div class="readout"><span>p 值 <b class="p">–</b></span><span class="dec">–</span></div>';
+  var c=box.querySelector("canvas"),tail="r",R=box.querySelector("input"),LO=-3.8,HI=3.8;
+  function draw(){
+    var z=+R.value/100;box.querySelector(".vz").textContent=f2(z);
+    var g=cv(c,180),x=g.x,w=g.w,h=g.h,base=h-20,top=14,sc=(base-top)/pdf(0);
+    var px=function(v){return 18+(v-LO)/(HI-LO)*(w-36);};
+    function shade(from,to){x.beginPath();x.moveTo(px(from),base);
+      for(var t=from;t<=to;t+=0.02)x.lineTo(px(t),base-pdf(t)*sc);
+      x.lineTo(px(to),base);x.closePath();x.fillStyle=css("--marker");x.globalAlpha=.35;x.fill();x.globalAlpha=1;}
+    var p;
+    if(tail==="r"){shade(z,HI);p=1-Phi(z);}
+    else if(tail==="l"){shade(LO,z);p=Phi(z);}
+    else{var az=Math.abs(z);shade(az,HI);shade(LO,-az);p=2*(1-Phi(az));}
+    x.beginPath();for(var t2=LO;t2<=HI;t2+=0.02){var X=px(t2),Y=base-pdf(t2)*sc;t2===LO?x.moveTo(X,Y):x.lineTo(X,Y);}
+    x.strokeStyle=css("--jade");x.lineWidth=2;x.stroke();
+    x.strokeStyle=css("--marker");x.beginPath();x.moveTo(px(z),top-6);x.lineTo(px(z),base);x.stroke();
+    x.strokeStyle=css("--line");x.lineWidth=1;x.beginPath();x.moveTo(10,base+.5);x.lineTo(w-10,base+.5);x.stroke();
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";
+    for(var t3=-3;t3<=3;t3++)x.fillText(String(t3),px(t3)-3,base+13);
+    box.querySelector(".p").textContent=p<0.0001?"< 0.0001":f2(p,4);
+    var d=box.querySelector(".dec");
+    d.textContent=p<=0.05?LZ("p ≤ 0.05 → 拒绝 H₀","p ≤ 0.05 → reject H₀"):LZ("p > 0.05 → 不拒绝 H₀","p > 0.05 → do not reject H₀");
+    d.style.color=p<=0.05?css("--marker"):css("--ink-faint");
+  }
+  R.oninput=draw;
+  box.querySelectorAll(".seg button").forEach(function(b){b.onclick=function(){
+    tail=b.getAttribute("data-t");
+    box.querySelectorAll(".seg button").forEach(function(o){o.setAttribute("aria-pressed",o===b);});draw();};});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.reg=function(box){
+  box.innerHTML='<h4>最小二乘线</h4><p class="hint">拖动任何一点，直线会跟着变。打开残差方块，就看得到"平方和最小"在最小什么。</p>'+
+   '<canvas></canvas><div class="ctrl"><button class="btn-s" data-a="sq">显示/隐藏残差方块</button>'+
+   '<button class="btn-s" data-a="reset">复原</button></div>'+
+   '<div class="readout"><span>r <b class="r">–</b></span><span>r² <b class="r2">–</b></span>'+
+   '<span>ŷ = <b class="eq">–</b></span></div>';
+  var c=box.querySelector("canvas"),drag=-1,sq=false;
+  var init=[[1,9.2],[2,8.6],[3,8.1],[4,7.0],[5,6.8],[6,5.9],[7,5.5],[8,4.4],[9,4.0],[10,3.1]];
+  var P=init.map(function(p){return p.slice();});
+  var XLO=0,XHI=11,YLO=0,YHI=11;
+  function fit(){
+    var n=P.length,sx=0,sy=0,sxy=0,sxx=0,syy=0;
+    P.forEach(function(p){sx+=p[0];sy+=p[1];sxy+=p[0]*p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];});
+    var SSxy=sxy-sx*sy/n,SSxx=sxx-sx*sx/n,SSyy=syy-sy*sy/n;
+    var b=SSxy/SSxx,a=sy/n-b*sx/n,r=SSxy/Math.sqrt(SSxx*SSyy);
+    return {a:a,b:b,r:r};
+  }
+  function draw(){
+    var g=cv(c,220),x=g.x,w=g.w,h=g.h,L=30,Bm=24;
+    var px=function(v){return L+(v-XLO)/(XHI-XLO)*(w-L-12);};
+    var py=function(v){return h-Bm-(v-YLO)/(YHI-YLO)*(h-Bm-12);};
+    x.strokeStyle=css("--line-soft");x.lineWidth=1;
+    for(var t=0;t<=10;t+=2){x.beginPath();x.moveTo(px(t),12);x.lineTo(px(t),h-Bm);x.stroke();
+      x.beginPath();x.moveTo(L,py(t));x.lineTo(w-12,py(t));x.stroke();}
+    x.strokeStyle=css("--line");x.beginPath();x.moveTo(L,h-Bm+.5);x.lineTo(w-12,h-Bm+.5);x.stroke();
+    x.beginPath();x.moveTo(L-.5,12);x.lineTo(L-.5,h-Bm);x.stroke();
+    x.fillStyle=css("--ink-faint");x.font="10px sans-serif";
+    for(var t2=0;t2<=10;t2+=2){x.fillText(String(t2),px(t2)-3,h-Bm+13);x.fillText(String(t2),8,py(t2)+3);}
+    var f=fit();
+    if(sq){P.forEach(function(p){var yh=f.a+f.b*p[0],d=p[1]-yh;
+      var sx0=px(p[0]),sy0=py(p[1]),sy1=py(yh),side=Math.abs(sy1-sy0);
+      x.fillStyle=css("--marker");x.globalAlpha=.16;
+      x.fillRect(sx0,Math.min(sy0,sy1),side*(d>0?1:-1),Math.abs(sy1-sy0));x.globalAlpha=1;});}
+    x.strokeStyle=css("--jade");x.lineWidth=2.2;x.beginPath();
+    x.moveTo(px(XLO),py(f.a+f.b*XLO));x.lineTo(px(XHI),py(f.a+f.b*XHI));x.stroke();
+    P.forEach(function(p,i){x.beginPath();x.arc(px(p[0]),py(p[1]),6,0,7);
+      x.fillStyle=i===drag?css("--marker"):css("--ink");x.globalAlpha=i===drag?1:.75;x.fill();x.globalAlpha=1;});
+    box.querySelector(".r").textContent=f2(f.r,3);
+    box.querySelector(".r2").textContent=f2(f.r*f.r,3);
+    box.querySelector(".eq").textContent=f2(f.a,2)+(f.b<0?" − ":" + ")+f2(Math.abs(f.b),2)+"x";
+    c._px=px;c._py=py;
+  }
+  function hit(e){var r=c.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,best=-1,bd=1e9;
+    P.forEach(function(p,i){var d=Math.hypot(c._px(p[0])-mx,c._py(p[1])-my);if(d<bd){bd=d;best=i;}});
+    return bd<26?best:-1;}
+  c.addEventListener("pointerdown",function(e){drag=hit(e);if(drag>=0){c.setPointerCapture(e.pointerId);draw();}});
+  c.addEventListener("pointermove",function(e){if(drag<0)return;
+    var r=c.getBoundingClientRect(),h=c.clientHeight,Bm=24;
+    var v=(h-Bm-(e.clientY-r.top))/(h-Bm-12)*(YHI-YLO);
+    P[drag][1]=Math.max(0.2,Math.min(10.8,v));draw();});
+  ["pointerup","pointercancel"].forEach(function(t){c.addEventListener(t,function(){drag=-1;draw();});});
+  box.querySelectorAll(".btn-s").forEach(function(b){b.onclick=function(){
+    var a=b.getAttribute("data-a");
+    if(a==="sq")sq=!sq;else P=init.map(function(p){return p.slice();});draw();};});
+  draw();window.addEventListener("resize",draw);
+};
+
+DEMOS.chi=function(box){
+  box.innerHTML='<h4>算一次 χ²</h4><p class="hint">掷 120 次骰子。改观察次数（合计会自动重算期望），看 χ² 怎么长大。</p>'+
+   '<table class="tbl"><tr><th>点数</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>'+
+   '<tr><th>观察 O</th></tr><tr><th>期望 E</th></tr><tr><th>(O−E)²/E</th></tr></table>'+
+   '<div class="readout"><span>n = <b class="n">–</b></span><span>χ² = <b class="x2">–</b></span>'+
+   '<span>df = 5，临界值 11.07</span><span class="dec">–</span></div>';
+  var O=[22,17,20,26,18,17],rows=box.querySelectorAll("tr");
+  O.forEach(function(v,i){var td=document.createElement("td");
+    td.innerHTML='<input type="number" min="0" value="'+v+'">';rows[1].appendChild(td);
+    rows[2].appendChild(document.createElement("td"));rows[3].appendChild(document.createElement("td"));});
+  function calc(){
+    var ins=box.querySelectorAll("input"),n=0,vals=[];
+    ins.forEach(function(inp){var v=Math.max(0,+inp.value||0);vals.push(v);n+=v;});
+    var E=n/6,x2=0;
+    vals.forEach(function(v,i){var c1=E>0?(v-E)*(v-E)/E:0;x2+=c1;
+      rows[2].children[i+1].textContent=f2(E,1);
+      rows[3].children[i+1].textContent=f2(c1,2);});
+    box.querySelector(".n").textContent=n;
+    box.querySelector(".x2").textContent=f2(x2,3);
+    var d=box.querySelector(".dec");
+    d.textContent=x2>11.07?LZ("χ² > 11.07 → 拒绝「骰子公正」","χ² > 11.07 → reject the fair-die claim"):LZ("χ² ≤ 11.07 → 不拒绝 H₀","χ² ≤ 11.07 → do not reject H₀");
+    d.style.color=x2>11.07?css("--marker"):css("--ink-faint");
+  }
+  box.querySelectorAll("input").forEach(function(i){i.oninput=calc;});calc();
+};
+</script>
+<script>
+/* ============ router + views ============ */
+var views={home:"#v-home",ch:"#v-ch",quiz:"#v-quiz",fml:"#v-fml",me:"#v-me"};
+function show(v){
+  Object.keys(views).forEach(function(k){$(views[k]).classList.toggle("on",k===v);});
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.setAttribute("aria-current",String(t.getAttribute("data-go")===v));});
+  window.scrollTo(0,0);
+}
+function route(){
+  var h=(location.hash||"#/").replace("#","");
+  var m=h.match(/^\/ch\/(\d+)/),q=h.match(/^\/quiz\/(\d+)/);
+  if(q){renderQuiz(+q[1]);show("quiz");}
+  else if(m){renderChapter(+m[1]);show("ch");}
+  else if(h==="/fml"){renderFml();show("fml");}
+  else if(h==="/me"){renderMe();show("me");}
+  else {renderHome();show("home");}
+}
+window.addEventListener("hashchange",route);
+document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){
+  var g=t.getAttribute("data-go");location.hash=g==="home"?"/":"/"+g;};});
+$("#themeBtn").onclick=function(){
+  var cur=document.documentElement.getAttribute("data-theme");
+  var next=cur==="dark"?"light":(cur==="light"?"dark":(matchMedia("(prefers-color-scheme:dark)").matches?"light":"dark"));
+  document.documentElement.setAttribute("data-theme",next);S.theme=next;save();
+  if($("#v-home").classList.contains("on"))hero(); else route();
+};
+
+/* ============ progress ============ */
+function chProg(ch){
+  var done=0;ch.secs.forEach(function(s){if(S.read[ch.n+"|"+s.no])done++;});
+  return {done:done,total:ch.secs.length,frac:done/ch.secs.length};
+}
+function ring(frac){
+  var r=12,C=2*Math.PI*r,on=C*frac;
+  return '<svg class="ring" viewBox="0 0 30 30"><circle class="bg" cx="15" cy="15" r="'+r+'"></circle>'+
+    '<circle class="fg" cx="15" cy="15" r="'+r+'" stroke-dasharray="'+on.toFixed(1)+' '+C.toFixed(1)+'"'+
+    ' transform="rotate(-90 15 15)"></circle></svg>';
+}
+
+/* ============ home ============ */
+function renderHome(){
+  var L=$("#ladder");L.innerHTML="";var allD=0,allT=0;
+  BOOK.forEach(function(ch){
+    var p=chProg(ch);allD+=p.done;allT+=p.total;
+    var li=el("li"),b=el("button","ch");
+    b.innerHTML='<span class="ch-no">'+ch.n+'</span><span class="ch-t"><b>'+chTitle(ch)+'</b><i>'+chSub(ch)+'</i></span>'+ring(p.frac);
+    b.onclick=function(){location.hash="/ch/"+ch.n;};
+    li.appendChild(b);L.appendChild(li);
+  });
+  $("#allProg").textContent=U("readCount",allD,allT);
+  var rb=$("#resumeBtn");
+  if(S.last){
+    var c=BOOK.filter(function(x){return x.n===S.last;})[0];
+    if(c){rb.hidden=false;rb.innerHTML=U("resume",c);
+      rb.onclick=function(){location.hash="/ch/"+c.n;};}
+  } else rb.hidden=true;
+  hero();
+}
+
+/* ============ chapter ============ */
+function renderChapter(n){
+  var ch=BOOK.filter(function(x){return x.n===n;})[0];if(!ch){location.hash="/";return;}
+  S.last=n;save();
+  var B=$("#chBody");B.innerHTML="";
+  var back=el("button","back","← "+U("toc"));back.onclick=function(){location.hash="/";};B.appendChild(back);
+  var head=el("div","ch-hero",'<p class="kicker">'+chKicker(ch)+'</p><h1>'+chTitle(ch)+'</h1><p>'+chBlurb(ch)+'</p>');
+  B.appendChild(head);
+  var used={};
+  ch.secs.forEach(function(s){
+    var card=el("div","lesson");
+    card.innerHTML='<h3><span class="n">'+s.no+'</span>'+secTitle(n,s)+'</h3><p class="en">'+secSub(n,s)+'</p>'+secHtml(n,s);
+    if(s.demo&&!used[s.demo]&&DEMOS[s.demo]){used[s.demo]=1;
+      var box=el("div","demo");card.appendChild(box);
+      setTimeout(function(){try{DEMOS[s.demo](box);trDemo(box);}catch(e){box.innerHTML='<p class="hint">'+U("demoFail")+'</p>';}},0);}
+    var key=n+"|"+s.no,btn=el("button","done-btn");
+    function paint(){var d=!!S.read[key];btn.setAttribute("data-done",d?"1":"0");
+      btn.textContent=(d?"✓ ":"")+U(d?"marked":"markDone",s.no);}
+    btn.onclick=function(){if(S.read[key])delete S.read[key];else S.read[key]=1;save();paint();};
+    paint();card.appendChild(btn);B.appendChild(card);
+  });
+  var best=S.quiz[n];
+  var cta=el("button","quiz-cta",(best?U("quizRedo",best.score,best.total):U("quizStart",ch.quiz.length)));
+  cta.onclick=function(){location.hash="/quiz/"+n;};B.appendChild(cta);
+  var nav=el("div","ctrl");
+  if(n>1){var pv=el("button","btn-s",U("prevCh",n-1));pv.onclick=function(){location.hash="/ch/"+(n-1);};nav.appendChild(pv);}
+  if(n<BOOK.length){var nx=el("button","btn-s",U("nextCh",n+1));nx.onclick=function(){location.hash="/ch/"+(n+1);};nav.appendChild(nx);}
+  B.appendChild(nav);
+}
+
+/* ============ quiz ============ */
+var QS={list:[],i:0,right:0,ch:null,wrong:[]};
+function renderQuiz(n){
+  var ch=BOOK.filter(function(x){return x.n===n;})[0];if(!ch){location.hash="/";return;}
+  QS={list:ch.quiz.slice(),i:0,right:0,ch:ch,wrong:[]};
+  drawQ();
+}
+function drawQ(){
+  var B=$("#quizBody");B.innerHTML="";
+  var back=el("button","back","← "+U("backCh",QS.ch.n));
+  back.onclick=function(){location.hash="/ch/"+QS.ch.n;};B.appendChild(back);
+  if(QS.i>=QS.list.length){
+    var pct=Math.round(QS.right/QS.list.length*100);
+    var sc=el("div","score");
+    sc.innerHTML='<div class="big">'+QS.right+" / "+QS.list.length+'</div><p>'+U("scoreMsg",pct)+'</p>';
+    var again=el("button","quiz-cta",U("again"));again.onclick=function(){renderQuiz(QS.ch.n);};
+    sc.appendChild(again);
+    if(QS.wrong.length){
+      var w=el("p","muted",U("wrongList",QS.wrong.map(function(i){return i+1;})));
+      sc.appendChild(w);}
+    B.appendChild(sc);
+    var prev=S.quiz[QS.ch.n];
+    if(!prev||QS.right>prev.score){S.quiz[QS.ch.n]={score:QS.right,total:QS.list.length};save();}
+    var nx=el("button","btn-s pri",U("nextChapter"));
+    nx.onclick=function(){location.hash="/ch/"+Math.min(BOOK.length,QS.ch.n+1);};
+    if(QS.ch.n<BOOK.length)B.appendChild(nx);
+    return;
+  }
+  var q=QS.list[QS.i];
+  var bar=el("div","qbar");
+  bar.innerHTML='<span>'+U("qbar",QS.ch.n,QS.i+1,QS.list.length)+'</span><span class="track">'+
+    '<span class="fill" style="width:'+(QS.i/QS.list.length*100)+'%"></span></span><span>'+U("correctN",QS.right)+'</span>';
+  B.appendChild(bar);
+  var card=el("div","qcard");
+  card.appendChild(el("p","stem",QT(QS.ch,QS.i,"q")));
+  var locked=false,marks=["A","B","C","D"];
+  QT(QS.ch,QS.i,"o").forEach(function(text,i){
+    var b=el("button","opt",'<span class="mk">'+marks[i]+'</span>'+text);
+    b.onclick=function(){
+      if(locked)return;locked=true;
+      var ok=i===q.a;
+      if(ok)QS.right++;else QS.wrong.push(QS.i);
+      card.querySelectorAll(".opt").forEach(function(o,j){
+        o.disabled=true;
+        if(j===q.a)o.setAttribute("data-state","right");
+        else if(j===i)o.setAttribute("data-state","wrong");});
+      var tp=QT(QS.ch,QS.i,"trap");
+      var ex=el("div","expl",'<b>'+(ok?U("rightMsg"):U("wrongMsg",marks[q.a]))+'</b> '+QT(QS.ch,QS.i,"e")+
+        (tp?'<span class="trap">'+U("trapLabel")+'</span><span>'+tp+'</span>':''));
+      card.appendChild(ex);
+      var nx=el("button","done-btn",U(QS.i===QS.list.length-1?"seeScore":"nextQ"));
+      nx.onclick=function(){QS.i++;drawQ();};card.appendChild(nx);
+      nx.scrollIntoView({block:"nearest"});
+    };
+    card.appendChild(b);
+  });
+  B.appendChild(card);
+}
+
+/* ============ formulas ============ */
+function renderFml(){
+  var B=$("#fmlBody");B.innerHTML="";
+  BOOK.forEach(function(ch){
+    if(!ch.fml||!ch.fml.length)return;
+    var c=el("div","fcard");
+    c.innerHTML='<h3>'+U("fmlCh",ch)+'</h3>';
+    ch.fml.forEach(function(f,i){
+      c.innerHTML+='<div class="fml"><span class="lbl">'+fmlTitle(ch,i,f)+'</span>'+f.h+'</div>';});
+    var go=el("button","btn-s",U("goCh",ch.n));
+    go.onclick=function(){location.hash="/ch/"+ch.n;};c.appendChild(go);
+    B.appendChild(c);
+  });
+}
+
+/* ============ progress page ============ */
+function renderMe(){
+  var B=$("#meBody");B.innerHTML="";
+  var d=0,t=0,qd=0,qs=0,qt=0;
+  BOOK.forEach(function(ch){
+    var p=chProg(ch);d+=p.done;t+=p.total;
+    var best=S.quiz[ch.n];if(best){qd++;qs+=best.score;qt+=best.total;}
+    var row=el("div","prow");
+    row.innerHTML=ring(p.frac)+'<span class="nm">'+ch.n+". "+chTitle(ch)+'</span>'+
+      '<span class="sc">'+p.done+"/"+p.total+'</span>'+
+      '<span class="sc" style="color:'+(best?"var(--marker)":"var(--ink-faint)")+'">'+
+      (best?best.score+"/"+best.total:U("notTested"))+'</span>';
+    row.onclick=function(){location.hash="/ch/"+ch.n;};
+    B.appendChild(row);
+  });
+  $("#meSum").textContent=U("meSum",d,t,qd,qs,qt);
+}
+$("#wipeBtn").onclick=function(){
+  if(!confirm(U("wipeAsk")))return;
+  S={read:{},quiz:{},last:null,theme:S.theme};save();renderMe();
+};
+
+/* ============ go ============ */
+window.addEventListener("resize",function(){if($("#v-home").classList.contains("on"))hero();});
+</script>
+<script>window.EN={ch:{}};
+EN.ch[1]={blurb:"First, get the vocabulary straight: what you measure, who you measure, and what the numbers are called. These words are used in every later chapter.",
+ fml:["Summation notation"],
+ html:{
+ "1.1":`
+  <p>Statistics does one thing: <span class="k">use a small part of the data to say something about a large group</span>. So start by separating the two sides.</p>
+  <ul>
+   <li><span class="k">Population</span>: every object you really want to know about. Example: the exam scores of all 4,000 students in a school.</li>
+   <li><span class="k">Sample</span>: the small part you actually collect. Example: the 50 students you picked.</li>
+   <li><span class="k">Parameter</span>: a number that describes the population, written with Greek letters: μ, σ, p. It is fixed, but usually unknown.</li>
+   <li><span class="k">Statistic</span>: a number computed from the sample: x̄, s, p̂. It changes from sample to sample.</li>
+  </ul>
+  <p>A <span class="k">variable</span> is the feature you record. Two kinds:</p>
+  <ul>
+   <li><span class="k">Qualitative (categorical)</span>: sex, blood type, brand — you can only sort them into groups, not average them.</li>
+   <li><span class="k">Quantitative (numerical)</span>: height, score, lifetime — you can average them. Split again into discrete (countable: number of children) and continuous (measurable: weight).</li>
+  </ul>
+  <div class="eg"><b>Example</b>You want the average score of the whole school. μ = the true school average (parameter, unknown). A random sample of 50 gives x̄ = 68.4 (statistic, known). You use 68.4 to guess μ.</div>
+  <div class="warn"><b>Common error</b>"Sample" means the group of individuals or their data, not the act of sampling. Also: x̄ is always the number you computed; μ is always the number you are trying to guess.</div>`,
+ "1.2":`
+  <p>The whole book has only two story lines. See the map first and you will not get lost later.</p>
+  <ul>
+   <li><span class="k">Descriptive statistics</span>: organise the data you hold into pictures and a few numbers (Chapter 2). It only describes this batch of data; it draws no conclusion beyond it.</li>
+   <li><span class="k">Inferential statistics</span>: say something about the population from the sample (Chapters 7–11). Because you saw only a part, the conclusion always carries uncertainty — which is why probability (Chapters 3–5) and sampling distributions (Chapter 6) come first.</li>
+  </ul>
+  <p>The order of the book is: <span class="k">organise data → probability → sampling distributions → estimation → testing</span>. Chapter 6 is the turning point; everything before it is preparation.</p>
+  <div class="eg"><b>Example</b>"These 50 students averaged 68.4" = descriptive. "The school average is probably between 65.6 and 71.2" = inferential.</div>`,
+ "1.3":`
+  <p>Raw data is just a list of numbers, usually written x₁, x₂, …, x<sub>n</sub>, where n is the sample size. For a population, use N.</p>
+  <p>The same numbers arranged differently show different things:</p>
+  <ul>
+   <li><span class="k">Sorted</span> (smallest to largest): you can see the minimum, maximum and the middle at once. Always sort before finding a median or a quartile.</li>
+   <li><span class="k">Frequency table</span>: group the values, count how many fall in each group.</li>
+   <li><span class="k">A picture</span>: shape (symmetric? skewed?), centre, spread, and any outliers.</li>
+  </ul>
+  <div class="warn"><b>Common error</b>Σx means add up all the data. (Σx)² means "add first, then square". Σx² means "square first, then add". These are almost never equal, and mixing them up is the most common mistake when computing a standard deviation.</div>`},
+ quiz:[
+ {q:"A study takes 200 adults, measures their blood pressure, and gets a mean of 128 mmHg. The number 128 is a:",o:["parameter","statistic","population","variable"],a:1,e:"A number computed from a sample is a statistic. The parameter here is the true mean blood pressure of all adults (μ), which is unknown.",trap:"Seeing the word \"mean\" and calling it μ. The test is whether the number came from the sample or from everyone."},
+ {q:"Which one is a qualitative variable?",o:["weight in kg","number of children at home","brand of phone","tyre life in km"],a:2,e:"A brand can only be sorted into categories, not added or averaged, so it is qualitative.",trap:"Coding brands as 1, 2, 3 makes them look numeric, but \"average brand 1.8\" means nothing."},
+ {q:"Which statement about μ and x̄ is correct?",o:["Both come from the sample","μ is usually unknown and x̄ estimates it","x̄ is usually unknown and μ estimates it","They are always equal"],a:1,e:"μ is a fixed but unknown population parameter; x̄ is a known sample statistic that varies, and we use it to estimate μ.",trap:""},
+ {q:"\"These 30 bulbs lasted an average of 1,180 hours\" is:",o:["descriptive statistics","inferential statistics","sampling","hypothesis testing"],a:0,e:"It only describes the 30 bulbs in hand, with no claim about all bulbs, so it is descriptive.",trap:"Add \"so all bulbs from this plant last about 1,180 hours\" and it becomes inference."},
+ {q:"The number of cats a household owns is which kind of variable?",o:["qualitative","continuous quantitative","discrete quantitative","none of these"],a:2,e:"It can only be 0, 1, 2, … so it is discrete quantitative.",trap:"Discrete versus continuous is not about size; it is about whether values in between can be split without limit."},
+ {q:"If the values of x are 2, 3 and 5, then Σx² and (Σx)² are:",o:["38 and 100","100 and 38","10 and 10","38 and 38"],a:0,e:"Σx² = 4+9+25 = 38; (Σx)² = 10² = 100. Different order, very different answer.",trap:"Swapping these two is the classic error in variance calculations."},
+ {q:"The main reason for sampling is that:",o:["a sample is always more accurate than the population","surveying everyone is usually too costly, too slow, or impossible","a sample removes error","the law requires it"],a:1,e:"Sampling is a trade-off for cost and time. The price is sampling error, which is exactly what inference deals with later.",trap:"A sample is not \"more accurate\"; it is simply feasible."},
+ {q:"Which group contains only statistics?",o:["μ, σ, p","x̄, s, p̂","μ, x̄, s","N, μ, σ"],a:1,e:"Roman letters with hats or lower case (x̄, s, p̂) come from samples; the Greek letters μ, σ, p describe populations.",trap:""}
+]};
+
+EN.ch[2]={blurb:"Three things: shape, centre, spread. Learn to read the picture first, then summarise a pile of numbers with two or three values.",
+ fml:["Mean","Sample variance and standard deviation","z-score","IQR and outlier limits","Chebyshev"],
+ html:{
+ "2.1":`
+  <p>Look at the shape before you compute anything.</p>
+  <ul>
+   <li><span class="k">Stem-and-leaf</span>: tens digit as the stem, ones digit as the leaf. You get a picture and still keep the original values. Good for small data sets.</li>
+   <li><span class="k">Frequency histogram</span>: group the data and draw bars whose height is the count in each group. The bars touch, because the values are on a continuous scale.</li>
+   <li><span class="k">Relative frequency histogram</span>: bar height = count ÷ n = a proportion. All the bars add up to 1. This matters: Chapter 5 pushes this idea to the limit, the outline becomes a smooth curve, and area becomes probability.</li>
+  </ul>
+  <p>Shapes to look for: <span class="k">symmetric</span>, <span class="k">skewed right</span> (long tail toward large values, like income), <span class="k">skewed left</span>, bimodal, and outliers.</p>
+  <div class="warn"><b>Common error</b>A histogram (quantitative data) is not a bar chart (categorical data). Bar charts leave gaps between bars and the order of the bars can be changed freely.</div>`,
+ "2.2":`
+  <p>Three common measures of "centre":</p>
+  <div class="fml"><span class="lbl">sample mean</span>x̄ = <span class="frac"><span>Σx</span><span>n</span></span> &nbsp;&nbsp;&nbsp; <span class="lbl" style="margin-top:6px">population mean</span>μ = <span class="frac"><span>Σx</span><span>N</span></span></div>
+  <ul>
+   <li><span class="k">Median</span>: the middle value after sorting. Odd n: the single middle value. Even n: the average of the two middle values.</li>
+   <li><span class="k">Mode</span>: the most frequent value. There may be none, or several. For categorical data only the mode makes sense.</li>
+  </ul>
+  <p>Relationship: in a symmetric distribution all three are close. <span class="k">Skewed right: mean &gt; median</span> (the long tail drags the mean); skewed left is the reverse. The mean is pulled by outliers, the median is not — the median is <span class="k">resistant</span>.</p>
+  <div class="eg"><b>Example</b>Five monthly salaries (thousands): 3, 3.5, 4, 4.5, 40. Median 4, mean 11. Here the median describes a typical person much better.</div>`,
+ "2.3":`
+  <p>Two data sets can share the same mean and be spread out completely differently, so always report variability.</p>
+  <ul><li><span class="k">Range</span> = maximum − minimum. It uses only two values, so it is easily fooled by an outlier.</li></ul>
+  <div class="fml"><span class="lbl">sample variance (definition)</span>s² = <span class="frac"><span>Σ(x − x̄)²</span><span>n − 1</span></span>
+  <br><span class="lbl" style="margin-top:8px">sample variance (computing form — use this by hand)</span>s² = <span class="frac"><span>Σx² − (Σx)²/n</span><span>n − 1</span></span>
+  <br><span class="lbl" style="margin-top:8px">sample standard deviation</span>s = √s²</div>
+  <p>Why divide by <span class="k">n − 1</span> instead of n? Because x̄ itself came from the same data, the deviations must add to zero, so only n − 1 of them are free. Dividing by n − 1 keeps the estimate from being too small on average. The population variance σ² divides by N.</p>
+  <p>The standard deviation has the same units as the data, so it is easier to read than the variance: roughly, it is the typical distance from the mean. s ≥ 0, and s = 0 only when every value is identical.</p>
+  <div class="warn"><b>Common error</b>Forgetting the square root (using s² as s), or dividing by n in a sample problem. If the question says "sample", the denominator is n − 1.</div>`,
+ "2.4":`
+  <p>A score on its own means nothing; you need to know where it stands in the group.</p>
+  <ul>
+   <li><span class="k">Percentile</span>: the 80th percentile has about 80% of the data below it.</li>
+   <li><span class="k">Quartiles</span>: Q₁ (25th), Q₂ = median, Q₃ (75th).</li>
+   <li><span class="k">Interquartile range</span> IQR = Q₃ − Q₁ — the width of the middle half, unaffected by outliers.</li>
+   <li><span class="k">Five-number summary</span>: minimum, Q₁, median, Q₃, maximum → drawn as a <span class="k">boxplot</span>.</li>
+  </ul>
+  <div class="fml"><span class="lbl">z-score (standardising)</span>z = <span class="frac"><span>x − x̄</span><span>s</span></span> &nbsp;&nbsp;(population: z = <span class="frac"><span>x − μ</span><span>σ</span></span>)</div>
+  <p>z says how many standard deviations a value sits from the mean. z = 2 is two standard deviations above; a negative z is below. z has no units, so it lets you compare scores from different tests or different units.</p>
+  <div class="eg"><b>Example</b>Maths 80 (x̄ = 70, s = 5) → z = 2. English 80 (x̄ = 75, s = 10) → z = 0.5. The maths result is far stronger.</div>
+  <div class="eg"><b>Outlier rule</b>Points below Q₁ − 1.5·IQR or above Q₃ + 1.5·IQR are usually flagged as outliers.</div>`,
+ "2.5":`
+  <p>Knowing x̄ and s already tells you roughly where the data sits.</p>
+  <p><span class="k">The Empirical Rule</span> — only for distributions close to bell-shaped (normal):</p>
+  <ul><li>about <span class="k">68%</span> within μ ± 1σ</li><li>about <span class="k">95%</span> within μ ± 2σ</li><li>about <span class="k">99.7%</span> within μ ± 3σ</li></ul>
+  <p><span class="k">Chebyshev's Theorem</span> — true for any shape:</p>
+  <div class="fml">proportion within μ ± kσ is at least 1 − <span class="frac"><span>1</span><span>k²</span></span> &nbsp;&nbsp;(k &gt; 1)</div>
+  <p>k = 2 → at least 75%; k = 3 → at least 88.9%. Loose, but it needs no assumption about shape.</p>
+  <div class="warn"><b>Common error</b>Chebyshev gives "at least", not "about". At k = 1 the formula gives 0, which says nothing, so k must exceed 1. When the shape is not bell-shaped you may not use 68–95–99.7.</div>`},
+ quiz:[
+ {q:"For the data 4, 6, 6, 8, 16, the median and the mean are:",o:["6 and 8","8 and 6","6 and 6","8 and 8"],a:0,e:"Sorted, the middle value is 6; the mean is 40/5 = 8. The right skew (16) makes the mean larger than the median.",trap:"Forgetting to sort first, or reporting the mode as the median."},
+ {q:"If a data set is skewed right, then:",o:["mean < median","mean ≈ median","mean > median","cannot tell"],a:2,e:"The long right tail pulls the mean toward large values while barely moving the median.",trap:"\"Skewed right\" means the tail is on the right, not that the peak is on the right."},
+ {q:"The denominator of the sample standard deviation is:",o:["n","n − 1","N","n + 1"],a:1,e:"Sample variance divides by n − 1 (the degrees of freedom) so it does not systematically underestimate the population variance. Only a population variance divides by N.",trap:"If the question says \"these 20 items are all of the products\", that is a population — divide by N."},
+ {q:"A student has z = −1.5. This means:",o:["the score was −1.5","the score is 1.5 standard deviations below the mean","the student ranked 1.5th","the score is 1.5 points above the mean"],a:1,e:"The unit of z is standard deviations, and a negative sign puts the value below the mean.",trap:"Reading z as a score or as a rank."},
+ {q:"Two exams: A scores 78 (x̄ = 70, s = 4); B scores 85 (x̄ = 80, s = 10). Whose relative performance is better?",o:["A","B","the same","not enough information"],a:0,e:"A: z = (78−70)/4 = 2. B: z = (85−80)/10 = 0.5. A is better.",trap:"Comparing raw scores while ignoring that the two exams spread out differently."},
+ {q:"The IQR is preferred to the range mainly because it:",o:["is faster to compute","is not affected by outliers","is always larger","needs no sorting"],a:1,e:"The IQR uses only the middle 50%, so changing the extreme values does not move it. The range is decided entirely by two extremes.",trap:"You still have to sort the data to find the IQR."},
+ {q:"With the shape unknown, at least what proportion lies within μ ± 2σ?",o:["68%","95%","at least 75%","at least 88.9%"],a:2,e:"Chebyshev: 1 − 1/2² = 0.75, so at least 75%.",trap:"Using 95% when the shape is unknown — that figure needs a bell shape."},
+ {q:"The bar heights of a relative frequency histogram add up to:",o:["n","1","100","x̄"],a:1,e:"Each height is a proportion (count ÷ n), so they total 1. This property links histograms to \"probability = area\" later.",trap:"On a percentage scale it totals 100%, which is the same thing."}
+]};
+
+EN.ch[3]={blurb:"The language of inference. Count the possibilities first, then learn three rules: intersections, unions and conditional probability.",
+ fml:["Complement","Addition rule","Conditional probability","Independence"],
+ html:{
+ "3.1":`
+  <p>A <span class="k">random experiment</span> is a process whose result is not known in advance, such as rolling a die.</p>
+  <ul>
+   <li><span class="k">Sample space S</span>: the set of all possible outcomes. One die: S = {1,2,3,4,5,6}.</li>
+   <li><span class="k">Event</span>: a subset of S. Example: E = "the number is even" = {2,4,6}.</li>
+  </ul>
+  <p>The rules: every outcome has a probability between 0 and 1, and all outcome probabilities add to 1. The probability of an event is the sum of the probabilities of the outcomes it contains.</p>
+  <div class="fml"><span class="lbl">equally likely outcomes</span>P(E) = <span class="frac"><span>number of outcomes in E</span><span>number of outcomes in S</span></span></div>
+  <div class="eg"><b>Example</b>Roll two dice: S has 36 equally likely outcomes. "The sum is 7" happens in 6 of them → 6/36 = 1/6.</div>
+  <div class="warn"><b>Common error</b>Counting outcomes only works when each outcome is equally likely. The sum of two dice takes 11 values (2 to 12), but they are not equally likely, so it is not 1/11.</div>`,
+ "3.2":`
+  <ul>
+   <li><span class="k">Complement A<sup>c</sup></span>: A does not happen. P(A<sup>c</sup>) = 1 − P(A).</li>
+   <li><span class="k">Intersection A ∩ B</span>: both happen ("and").</li>
+   <li><span class="k">Union A ∪ B</span>: at least one happens ("or").</li>
+  </ul>
+  <div class="fml"><span class="lbl">addition rule</span>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</div>
+  <p>You subtract the intersection because the overlap was counted twice. If A and B are <span class="k">mutually exclusive</span>, so P(A ∩ B) = 0, this reduces to P(A) + P(B).</p>
+  <div class="eg"><b>Example</b>Draw one card. P(red) = 26/52, P(king) = 4/52, P(red and king) = 2/52. So P(red or king) = 26/52 + 4/52 − 2/52 = 28/52.</div>
+  <div class="warn"><b>Common error</b>For "at least one" problems the complement is fastest: P(at least one) = 1 − P(none).</div>`,
+ "3.3":`
+  <p><span class="k">Conditional probability P(A|B)</span>: the probability of A given that B has happened. It shrinks the sample space down to B.</p>
+  <div class="fml">P(A|B) = <span class="frac"><span>P(A ∩ B)</span><span>P(B)</span></span> &nbsp;&nbsp;&nbsp; <span class="lbl" style="margin-top:6px">multiplication rule</span>P(A ∩ B) = P(B) · P(A|B)</div>
+  <p><span class="k">Independent</span>: whether B happens does not change the probability of A, that is P(A|B) = P(A). Then P(A ∩ B) = P(A)·P(B).</p>
+  <div class="eg"><b>Example</b>Draw two cards without replacement. P(both kings) = (4/52)(3/51). The second denominator becomes 51 — that is what dependence looks like. With replacement it would be (4/52)(4/52).</div>
+  <div class="warn"><b>Common error</b>Mutually exclusive ≠ independent. Mutually exclusive means they cannot happen together; independent means they do not affect each other. Two mutually exclusive events with non-zero probabilities are never independent, since one happening drops the other to zero.</div>`},
+ quiz:[
+ {q:"Rolling two dice, the probability that the sum is 5 is:",o:["1/11","4/36","5/36","1/6"],a:1,e:"(1,4)(4,1)(2,3)(3,2) is 4 outcomes out of 36 → 4/36 = 1/9.",trap:"Treating the 11 possible sums as equally likely."},
+ {q:"P(A) = 0.6, P(B) = 0.5, P(A ∩ B) = 0.2. Then P(A ∪ B) =",o:["1.1","0.9","0.8","0.3"],a:1,e:"0.6 + 0.5 − 0.2 = 0.9.",trap:"Forgetting to subtract the intersection gives a probability above 1, which is always wrong."},
+ {q:"If A and B are mutually exclusive, then:",o:["P(A ∩ B) = P(A)P(B)","P(A ∩ B) = 0","A and B are independent","P(A|B) = P(A)"],a:1,e:"Mutually exclusive means they cannot occur together, so the intersection has probability 0.",trap:"Mutually exclusive and independent are different ideas."},
+ {q:"A class is 60% female, and 30% of the females wear glasses. The probability that a random student is a female wearing glasses is:",o:["0.90","0.30","0.18","0.50"],a:2,e:"Multiplication rule: 0.60 × 0.30 = 0.18.",trap:"Treating 30% as the proportion of the whole class. It is a conditional probability within the females."},
+ {q:"Drawing two cards without replacement, the second draw is affected by the first because the events are:",o:["mutually exclusive","not independent","complements","impossible to multiply"],a:1,e:"Without replacement the remaining cards change, so the conditional probability changes and the draws are dependent.",trap:"\"With replacement\" → independent; \"without replacement\" → dependent. Watch for those words."},
+ {q:"Tossing a coin 3 times, the probability of at least one head is:",o:["1/8","3/8","7/8","1/2"],a:2,e:"Use the complement: 1 − P(all tails) = 1 − (1/2)³ = 7/8.",trap:"Adding cases one by one is easy to get wrong; for \"at least\" reach for the complement."},
+ {q:"Given P(B) = 0.4 and P(A ∩ B) = 0.1, then P(A|B) =",o:["0.04","0.25","0.4","0.5"],a:1,e:"0.1 / 0.4 = 0.25. Conditioning replaces the denominator with P(B).",trap:"Flipping numerator and denominator, which gives P(B|A)."},
+ {q:"Which value cannot be a probability?",o:["0","0.07","1","1.4"],a:3,e:"Probabilities must lie between 0 and 1, so 1.4 is impossible.",trap:"A result above 1 usually means the addition rule was used without subtracting the intersection."}
+]};
+
+EN.ch[4]={blurb:"Turn random outcomes into numbers, then ask: what happens on average? The binomial distribution is the star of this chapter.",
+ fml:["Mean and variance of a discrete distribution","Binomial probability","Binomial mean and standard deviation"],
+ html:{
+ "4.1":`
+  <p>A <span class="k">random variable</span> assigns a number to the outcome of a random experiment; write it with a capital letter X.</p>
+  <ul>
+   <li><span class="k">Discrete</span>: the possible values can be listed one by one (0, 1, 2, …). Example: the number of defectives among 10 items.</li>
+   <li><span class="k">Continuous</span>: the values fill an interval. Example: tyre life, or the actual content of a bottle.</li>
+  </ul>
+  <p>Lower case x is a particular value it takes, which is why we write P(X = x).</p>
+  <div class="warn"><b>Common error</b>For a discrete variable "exactly 3" makes sense. For a continuous variable P(X = 3) is always 0; you can only ask about an interval.</div>`,
+ "4.2":`
+  <p>A discrete distribution is just a table: each x with its P(x). It must satisfy 0 ≤ P(x) ≤ 1 and ΣP(x) = 1.</p>
+  <div class="fml"><span class="lbl">mean (expected value)</span>μ = E(X) = Σ x·P(x)
+  <br><span class="lbl" style="margin-top:8px">variance</span>σ² = Σ(x − μ)²P(x) = Σx²P(x) − μ²
+  <br><span class="lbl" style="margin-top:8px">standard deviation</span>σ = √σ²</div>
+  <p>The expected value is a long-run average, not the most likely value; it need not even be a possible value.</p>
+  <div class="eg"><b>Example</b>A ticket costs 10. It pays 1,000 with probability 0.001, otherwise nothing. Net gain X: +990 (p = 0.001) or −10 (p = 0.999). E(X) = 990(0.001) − 10(0.999) = −9.01. In the long run you lose.</div>
+  <div class="warn"><b>Common error</b>When using Σx²P(x) − μ², remember μ² means "take the expected value first, then square". It is not Σ(xP(x))².</div>`,
+ "4.3":`
+  <p>All four conditions must hold for a <span class="k">binomial</span> setting: ① a fixed number n of trials; ② each trial is success or failure; ③ the trials are independent; ④ the success probability p is the same every time. X = number of successes.</p>
+  <div class="fml">P(X = x) = <sup>n</sup>C<sub>x</sub> · p<sup>x</sup> · (1 − p)<sup>n − x</sup> &nbsp;&nbsp; x = 0,1,…,n
+  <br><span class="lbl" style="margin-top:8px">where</span><sup>n</sup>C<sub>x</sub> = <span class="frac"><span>n!</span><span>x!(n − x)!</span></span>
+  <br><span class="lbl" style="margin-top:8px">mean and standard deviation</span>μ = np &nbsp;&nbsp; σ = √(np(1 − p))</div>
+  <p>Shape: symmetric when p = 0.5; skewed right for small p; closer to bell-shaped as n grows — which is why Chapter 6 can approximate it with a normal curve.</p>
+  <div class="eg"><b>Example</b>A part has defect rate p = 0.1; inspect n = 20. Then μ = 2 and σ = √(20·0.1·0.9) = 1.34. Exactly 3 defectives: <sup>20</sup>C<sub>3</sub>(0.1)³(0.9)¹⁷ ≈ 0.190.</div>
+  <div class="warn"><b>Common error</b>"At most 3" means adding x = 0, 1, 2, 3. "At least 1" is 1 − P(X = 0). If you sample without replacement and the sample is a large share of the population, the trials are not independent and the binomial does not apply.</div>`},
+ quiz:[
+ {q:"A discrete distribution has P(0)=0.2, P(1)=0.3, P(2)=0.4, P(3)=k. Then k is:",o:["0.1","0.2","0.3","1.0"],a:0,e:"All probabilities must total 1, so k = 1 − 0.9 = 0.1.",trap:""},
+ {q:"X takes 0, 1, 2 with probabilities 0.5, 0.3, 0.2. Then E(X) =",o:["1.0","0.7","1.5","0.5"],a:1,e:"0(0.5) + 1(0.3) + 2(0.2) = 0.7.",trap:"Averaging the three values to 1 and ignoring the probability weights."},
+ {q:"Which situation is NOT binomial?",o:["counting heads in 10 coin tosses","guessing 20 multiple-choice questions","drawing 10 people without replacement from a class of 30 and counting males","inspecting 50 parts with a fixed defect rate"],a:2,e:"Without replacement, and with the sample a third of the population, the draws are dependent and p changes; this is a hypergeometric setting.",trap:"With a very large population, sampling without replacement is close enough to independent. Here the population is only 30."},
+ {q:"For a binomial with n = 25 and p = 0.4, μ and σ are:",o:["10 and 2.45","10 and 6","15 and 2.45","10 and 4"],a:0,e:"μ = np = 10; σ = √(25·0.4·0.6) = √6 = 2.449.",trap:"Reporting np(1−p) = 6 as the standard deviation, forgetting the square root."},
+ {q:"With n = 6 and p = 0.5, P(at least one success) =",o:["1/64","63/64","6/64","1/2"],a:1,e:"1 − P(X = 0) = 1 − (0.5)⁶ = 63/64 ≈ 0.984.",trap:"For \"at least one\", always try the complement first."},
+ {q:"The correct reading of E(X) is:",o:["the most likely value","the long-run average outcome","a value that is certain to occur","the median"],a:1,e:"It is a long-run average and may not be a value that ever occurs (for example, 2.3 children).",trap:"Confusing the expected value with the mode."},
+ {q:"A binomial distribution is roughly symmetric when:",o:["n is small","p is near 0","p = 0.5","p is near 1"],a:2,e:"p = 0.5 gives symmetry. Other values of p are skewed, though the shape still becomes more bell-like as n grows.",trap:""},
+ {q:"For a continuous random variable, P(X = 5) equals:",o:["0","a small positive number","1/n","the height of the density curve"],a:0,e:"Probability is area under the curve, and a single point has zero width, so the probability is 0. The density height is not a probability.",trap:"Reading the density value f(5) as a probability."}
+]};
+</script>
+<script>
+EN.ch[5]={blurb:"Probability becomes area under a curve. The normal distribution plus the z table is the calculating tool for everything that follows.",
+ fml:["Standardising","Common critical values","Tail conversions"],
+ html:{
+ "5.1":`
+  <p>A continuous variable is described by a <span class="k">density curve</span>. Two rules:</p>
+  <ul><li>the curve is never below 0;</li><li>the total area under it is 1.</li></ul>
+  <p>Probability is <span class="k">area</span>. P(a &lt; X &lt; b) is the area under the curve between a and b. Since a single point has zero area, P(X ≥ a) and P(X &gt; a) are the same — with continuous variables the endpoint does not matter.</p>
+  <p>Think back to the relative frequency histogram in 2.1: narrower classes and more bars make the outline smoother. The density curve is the limit of that process.</p>`,
+ "5.2":`
+  <p>The <span class="k">standard normal distribution Z</span> is bell-shaped and symmetric with μ = 0 and σ = 1. The table gives the <span class="k">area to the left</span>, that is P(Z &lt; z).</p>
+  <ul>
+   <li>P(Z &lt; z): read straight from the table.</li>
+   <li>P(Z &gt; z) = 1 − P(Z &lt; z).</li>
+   <li>P(a &lt; Z &lt; b) = P(Z &lt; b) − P(Z &lt; a).</li>
+   <li>By symmetry: P(Z &lt; −z) = P(Z &gt; z).</li>
+  </ul>
+  <p>Worth memorising: P(Z &lt; 1.645) ≈ 0.95, P(Z &lt; 1.96) ≈ 0.975, P(Z &lt; 2.576) ≈ 0.995. These come back in every confidence interval and test.</p>
+  <div class="warn"><b>Common error</b>Always sketch the bell curve first and shade the area you want, then decide whether you need to subtract from 1. That single step removes half the mistakes.</div>`,
+ "5.3":`
+  <p>Any normal X ~ N(μ, σ²) is standardised first, then read from the z table:</p>
+  <div class="fml">z = <span class="frac"><span>x − μ</span><span>σ</span></span> &nbsp;&nbsp;→&nbsp;&nbsp; P(X &lt; x) = P(Z &lt; z)</div>
+  <div class="eg"><b>Example</b>Tyre life X ~ N(μ = 60,000, σ = 5,000) km. The fraction lasting under 52,000 km: z = (52,000 − 60,000)/5,000 = −1.6 → P(Z &lt; −1.6) ≈ 0.0548, about 5.5%.</div>
+  <div class="warn"><b>Common error</b>Mixing up σ and σ². If the problem gives "variance 25", the denominator is 5, not 25.</div>`,
+ "5.4":`
+  <p>So far you were given x and found an area. Now it runs the other way: <span class="k">given an area, find x</span>. This is the form used for critical values and confidence intervals.</p>
+  <p>The notation <span class="k">z<sub>α</sub></span> means the z value with right-tail area α. For example z<sub>0.05</sub> = 1.645 and z<sub>0.025</sub> = 1.96.</p>
+  <p>Steps: convert the area you want into a left-tail area → find the closest area in the table → read off z → if you need original units, convert back with x = μ + zσ.</p>
+  <div class="eg"><b>Example</b>Scores X ~ N(70, 8²). What score marks the top 10%? Right tail 0.10 → z ≈ 1.28 → x = 70 + 1.28(8) ≈ 80.3.</div>
+  <div class="warn"><b>Common error</b>"Top 10%" is a right tail of 0.10, i.e. a left tail of 0.90. Looking up 0.10 directly gives −1.28, which points the wrong way.</div>`},
+ quiz:[
+ {q:"The total area under a density curve equals:",o:["n","1","μ","σ"],a:1,e:"This is required by the definition, and it is what makes \"probability = area\" work.",trap:""},
+ {q:"X ~ N(100, 15²). Find P(X < 115):",o:["0.68","0.8413","0.95","0.1587"],a:1,e:"z = (115−100)/15 = 1, and P(Z < 1) ≈ 0.8413.",trap:"Answering 0.68 on seeing one standard deviation — that is the middle area on both sides, not a left tail."},
+ {q:"P(Z > 1.5) equals:",o:["P(Z < 1.5)","1 − P(Z < 1.5)","the negative of P(Z < −1.5)","0.5 + P(Z < 1.5)"],a:1,e:"Right tail = 1 − left tail; by symmetry it also equals P(Z < −1.5).",trap:""},
+ {q:"A normal distribution has variance 36 and mean 50. The z-score of x = 62 is:",o:["0.33","2","12","6"],a:1,e:"σ = √36 = 6, so z = (62−50)/6 = 2.",trap:"Using 36 as the standard deviation. Take the square root when variance is given."},
+ {q:"The z value with a right-tail area of 0.025 is:",o:["1.645","1.96","2.576","0.025"],a:1,e:"z₀.₀₂₅ = 1.96, the value used in 95% confidence intervals.",trap:"1.645 corresponds to a right tail of 0.05."},
+ {q:"Scores X ~ N(75, 10²). The cut-off for the lowest 20% is about:",o:["66.6","83.4","67.5","71.6"],a:0,e:"Left tail 0.20 → z ≈ −0.84 → x = 75 + (−0.84)(10) = 66.6.",trap:"Dropping the negative sign and getting 83.4."},
+ {q:"For a continuous variable, how do P(X ≥ 4) and P(X > 4) compare?",o:["the first is larger","they are equal","the second is larger","they cannot be compared"],a:1,e:"A single point has probability 0, so including the endpoint changes nothing. Discrete variables behave differently.",trap:"Carrying a discrete habit into a continuous problem."},
+ {q:"The standard normal distribution has μ and σ equal to:",o:["0 and 1","1 and 0","0 and 0","values that depend on the sample"],a:0,e:"That is the definition of \"standard\": centre 0, standard deviation 1. Any normal can be converted to it with a z-score.",trap:""}
+]};
+
+EN.ch[6]={blurb:"The turning point of the book. x̄ is itself a random variable, and the shape of its distribution decides whether any inference is possible.",
+ fml:["Sampling distribution of the sample mean","z for the CLT","Sample proportion"],
+ html:{
+ "6.1":`
+  <p>Take a different sample and x̄ changes. The distribution of x̄ over all possible samples is called its <span class="k">sampling distribution</span>.</p>
+  <div class="fml">μ<sub>x̄</sub> = μ &nbsp;&nbsp;&nbsp;&nbsp; σ<sub>x̄</sub> = <span class="frac"><span>σ</span><span>√n</span></span></div>
+  <p>Two important conclusions:</p>
+  <ul>
+   <li>The average of x̄ is μ — x̄ is not systematically high or low. It is <span class="k">unbiased</span>.</li>
+   <li>x̄ varies √n times less than a single observation. σ<sub>x̄</sub> is called the <span class="k">standard error</span>. Four times the sample size only halves it — precision is expensive.</li>
+  </ul>
+  <div class="warn"><b>Common error</b>When computing probabilities about x̄, the denominator must be σ/√n, not σ. This is the most common slip in this chapter.</div>`,
+ "6.2":`
+  <p>The <span class="k">Central Limit Theorem (CLT)</span>: whatever the shape of the population, once n is large enough (the usual rule is <span class="k">n ≥ 30</span>) the distribution of x̄ is approximately normal with centre μ and standard deviation σ/√n.</p>
+  <div class="fml">Z = <span class="frac"><span>x̄ − μ</span><span>σ/√n</span></span> &nbsp;is approximately N(0,1)</div>
+  <p>If the population is already normal, x̄ is exactly normal for any n, with no need to reach 30.</p>
+  <p>This theorem is the foundation of the book: because of it, Chapters 7–11 can use z and t without knowing the population's shape.</p>
+  <div class="eg"><b>Example</b>A filling process has μ = 500 ml and σ = 12 ml. For 36 bottles, the chance the average is below 496 ml: z = (496 − 500)/(12/√36) = −4/2 = −2 → about 0.0228.</div>
+  <div class="warn"><b>Common error</b>Confusing "the data are close to normal" with "x̄ is close to normal". The CLT is about the second, and it fails when n is small and the population is badly skewed.</div>`,
+ "6.3":`
+  <p>When the study is about a proportion (approval rate, defect rate), the statistic is p̂ = x/n.</p>
+  <div class="fml">μ<sub>p̂</sub> = p &nbsp;&nbsp;&nbsp;&nbsp; σ<sub>p̂</sub> = √<span class="frac"><span>p(1 − p)</span><span>n</span></span>
+  <br><span class="lbl" style="margin-top:8px">standardised</span>Z = <span class="frac"><span>p̂ − p</span><span>√(p(1−p)/n)</span></span></div>
+  <p>When may you treat it as normal? The usual rule is <span class="k">np ≥ 10 and n(1 − p) ≥ 10</span> (some books use 5). If p is very close to 0 or 1, you need a bigger n.</p>
+  <div class="eg"><b>Example</b>True support p = 0.4 with n = 100. Then σ<sub>p̂</sub> = √(0.4·0.6/100) = 0.049. The chance p̂ exceeds 0.5: z = (0.5 − 0.4)/0.049 = 2.04 → about 0.021.</div>`},
+ quiz:[
+ {q:"With σ = 20 and n = 25, the standard error of x̄ is:",o:["20","4","0.8","5"],a:1,e:"σ/√n = 20/5 = 4.",trap:"Using σ = 20 as the standard error — the classic mistake in this chapter."},
+ {q:"The Central Limit Theorem says that:",o:["the sample data become normal","for large n the distribution of x̄ is approximately normal","the population must be normal","σ shrinks as the sample grows"],a:1,e:"It describes the sampling distribution of x̄, not the shape of the raw data. σ is a property of the population and does not change with sampling.",trap:"Thinking the CLT \"makes data normal\"."},
+ {q:"For a badly right-skewed population, using a normal model for x̄ usually requires:",o:["n ≥ 2","n ≥ 10","n ≥ 30","any n"],a:2,e:"The working rule is n ≥ 30, and severe skew needs more. If the population itself is normal, any n works.",trap:""},
+ {q:"Increasing the sample size from n = 25 to n = 100 changes the standard error to:",o:["one quarter","one half","double","no change"],a:1,e:"The standard error is inversely proportional to √n, and √100/√25 = 2, so it halves.",trap:"Assuming four times the data gives one quarter the error."},
+ {q:"With μ = 100, σ = 15 and n = 36, P(x̄ > 105) ≈",o:["0.3694","0.0228","0.0500","0.1587"],a:1,e:"Standard error = 15/6 = 2.5, z = (105−100)/2.5 = 2, right tail ≈ 0.0228.",trap:"Using σ = 15 gives z = 0.33 and the wrong answer 0.3694."},
+ {q:"Saying x̄ is an unbiased estimator of μ means:",o:["x̄ always equals μ","the mean of its sampling distribution equals μ","x̄ beats the median","x̄ has no error"],a:1,e:"Unbiased is a long-run property; a single x̄ still differs from μ.",trap:""},
+ {q:"With p = 0.5 and n = 100, the standard deviation of p̂ is:",o:["0.5","0.05","0.25","0.005"],a:1,e:"√(0.5·0.5/100) = √0.0025 = 0.05.",trap:"Forgetting to divide by n before taking the root."},
+ {q:"With p = 0.03 and n = 100, is a normal model for p̂ reasonable?",o:["yes, n is large enough","not really, np is only 3","yes, because n ≥ 30","it depends on σ"],a:1,e:"You need np ≥ 10 and n(1−p) ≥ 10. Here np = 3, too small, and the distribution is still clearly skewed.",trap:"Checking only n and forgetting np."}
+]};
+
+EN.ch[7]={blurb:"Estimate μ or p with an interval, and state how much confidence it carries. Use z when σ is known, t when it is not.",
+ fml:["Interval for a mean (z)","Interval for a mean (t, df = n − 1)","Interval for a proportion","Sample size"],
+ html:{
+ "7.1":`
+  <p>A <span class="k">point estimate</span> gives one number (x̄) and says nothing about its error. A <span class="k">confidence interval</span> gives a range.</p>
+  <div class="fml"><span class="lbl">σ known, or n large (n ≥ 30)</span>x̄ ± z<sub>α/2</sub> · <span class="frac"><span>σ</span><span>√n</span></span></div>
+  <p>The quantity z<sub>α/2</sub>·σ/√n is the <span class="k">margin of error, E</span>. Common critical values: 90% → 1.645, 95% → 1.96, 99% → 2.576. When σ is unknown but n is large, s may replace σ.</p>
+  <p>How to read "95% confidence": <span class="k">if you repeated the sampling many times, about 95% of the intervals would contain μ</span>. μ is fixed; the interval is what varies.</p>
+  <div class="eg"><b>Example</b>n = 49, x̄ = 68.4, σ = 7. The 95% interval is 68.4 ± 1.96(7/7) = 68.4 ± 1.96 → (66.44, 70.36).</div>
+  <div class="warn"><b>Common error</b>Never say "there is a 95% probability that μ lies in this interval". μ is not random; it either is or is not inside. The 95% describes the long-run behaviour of the method.</div>`,
+ "7.2":`
+  <p>When n is small (under 30) and σ is unknown, you must use s in place of σ, which adds uncertainty. Switch to the <span class="k">t distribution</span>. Requirement: the population is roughly normal.</p>
+  <div class="fml">x̄ ± t<sub>α/2</sub> · <span class="frac"><span>s</span><span>√n</span></span> &nbsp;&nbsp; degrees of freedom df = n − 1</div>
+  <p>The t distribution is also bell-shaped and symmetric, but with <span class="k">heavier tails</span>, so the interval is wider. As df grows it approaches the standard normal, and for large df the two are nearly identical.</p>
+  <div class="eg"><b>Example</b>n = 16, x̄ = 12.4, s = 2.0, 95% confidence: df = 15 gives t = 2.131, so 12.4 ± 2.131(2/4) = 12.4 ± 1.066 → (11.33, 13.47). Using 1.96 would make the interval too narrow.</div>
+  <div class="warn"><b>Common error</b>Writing df as n, or using t when σ is genuinely known. Decide in this order: σ known → z; σ unknown and n small → t; σ unknown but n large → z with s is acceptable.</div>`,
+ "7.3":`
+  <p>p is unknown, so the standard error uses p̂ in place of p:</p>
+  <div class="fml">p̂ ± z<sub>α/2</sub> · √<span class="frac"><span>p̂(1 − p̂)</span><span>n</span></span></div>
+  <p>Condition: both np̂ and n(1 − p̂) are at least 10.</p>
+  <div class="eg"><b>Example</b>460 of 1,000 people approve, so p̂ = 0.46. The 95% interval: 0.46 ± 1.96√(0.46·0.54/1000) = 0.46 ± 0.031 → (0.429, 0.491). The "±3 percentage points" quoted in news reports is this E.</div>`,
+ "7.4":`
+  <p>Decide the margin of error E and the confidence level you want, then solve for n:</p>
+  <div class="fml"><span class="lbl">estimating a mean</span>n = <span class="frac"><span>(z<sub>α/2</sub> · σ)²</span><span>E²</span></span>
+  <br><span class="lbl" style="margin-top:8px">estimating a proportion</span>n = <span class="frac"><span>(z<sub>α/2</sub>)² p̂(1 − p̂)</span><span>E²</span></span></div>
+  <p><span class="k">Always round up</span>. If nothing is known about p̂, use the most conservative value p̂ = 0.5, which makes p̂(1−p̂) as large as possible.</p>
+  <div class="eg"><b>Example</b>95% confidence, E = 0.03, p unknown: n = (1.96)²(0.25)/(0.03)² = 1067.1 → use 1,068 people. That is why so many polls use about 1,000 respondents.</div>
+  <div class="warn"><b>Common error</b>Mixing percentages with decimals for E (3 versus 0.03 differs by a factor of 10,000), and rounding the sample size down. Sample size only rounds up.</div>`},
+ quiz:[
+ {q:"The correct reading of a 95% confidence interval is:",o:["there is a 95% probability μ is inside","in repeated sampling about 95% of such intervals contain μ","95% of the data lie inside","the sample mean is 95% likely to be right"],a:1,e:"The confidence level describes the long-run performance of the method; μ is a fixed constant, not a random variable.",trap:"Turning \"the interval is random\" into \"μ is random\" — the favourite exam trap."},
+ {q:"With n = 100, x̄ = 50 and σ = 10, the 95% interval is:",o:["50 ± 1.96","50 ± 19.6","50 ± 0.196","50 ± 2.576"],a:0,e:"σ/√n = 1, so E = 1.96(1) = 1.96 → (48.04, 51.96).",trap:"Forgetting to divide by √n."},
+ {q:"With n = 12, σ unknown and a roughly normal population, the interval uses:",o:["a z critical value","a t critical value with df = 12","a t critical value with df = 11","no interval is possible"],a:2,e:"σ unknown with small n means the t distribution, with df = n − 1 = 11.",trap:"Writing df as n."},
+ {q:"Holding everything else fixed, raising the confidence level from 95% to 99% makes the interval:",o:["narrower","wider","unchanged","impossible to say"],a:1,e:"The critical value rises from 1.96 to 2.576, so the margin of error and the interval grow. More confidence means a vaguer statement.",trap:"Expecting more confidence and more precision at once — that needs a larger n."},
+ {q:"To halve the margin of error, the sample size must be about:",o:["halved","doubled","four times larger","unchanged"],a:2,e:"E is inversely proportional to √n, so halving E needs four times the sample.",trap:""},
+ {q:"With 300 of 1,000 in favour, the margin of error for a 95% interval for p is about:",o:["0.014","0.028","0.046","0.003"],a:1,e:"1.96√(0.3·0.7/1000) = 1.96(0.0145) = 0.028.",trap:"Forgetting the square root, or using 300 instead of p̂ = 0.3."},
+ {q:"With no information about p, the sample size formula should use p̂ =",o:["0.1","0.5","0.9","1.0"],a:1,e:"p̂ = 0.5 maximises p̂(1−p̂) at 0.25, giving the most conservative (safely large) n.",trap:""},
+ {q:"Compared with the standard normal, the t distribution has:",o:["thinner tails","heavier tails and wider intervals","a centre away from 0","an asymmetric shape"],a:1,e:"The extra uncertainty from estimating σ with s thickens the tails; as df grows it approaches the normal.",trap:""}
+]};
+
+EN.ch[8]={blurb:"The core routine of the book: assume there is no difference, see how unusual the data look, then decide whether to overturn that assumption.",
+ fml:["z test for a mean","t test for a mean","z test for a proportion","Decision rule"],
+ html:{
+ "8.1":`
+  <p>A test chooses between two opposing statements.</p>
+  <ul>
+   <li><span class="k">Null hypothesis H<sub>0</sub></span>: the default position, "no change, no difference". It always carries an equals sign (μ = μ₀).</li>
+   <li><span class="k">Alternative hypothesis H<sub>a</sub></span>: what you want to show. μ ≠ μ₀ (two-tailed), μ &gt; μ₀ or μ &lt; μ₀ (one-tailed).</li>
+  </ul>
+  <p>Two possible mistakes:</p>
+  <table class="tbl"><tr><th></th><th>H₀ is true</th><th>H₀ is false</th></tr>
+  <tr><th>Reject H₀</th><td>Type I error (α)</td><td>correct</td></tr>
+  <tr><th>Do not reject H₀</th><td>correct</td><td>Type II error (β)</td></tr></table>
+  <p><span class="k">α is the significance level</span>, chosen in advance (usually 0.05). A smaller α means fewer Type I errors but a larger β — the two pull against each other.</p>
+  <div class="warn"><b>Common error</b>You may only conclude "reject H₀" or "insufficient evidence, do not reject H₀". Never "H₀ is proved true". Finding no evidence is not proof of no effect.</div>`,
+ "8.2":`
+  <p>When n ≥ 30 or σ is known, the test statistic is:</p>
+  <div class="fml">Z = <span class="frac"><span>x̄ − μ<sub>0</sub></span><span>σ/√n</span></span> &nbsp;(use s for σ when σ is unknown and n is large)</div>
+  <p>Critical value method: compare Z with the critical value. Two-tailed at α = 0.05 → ±1.96; right-tailed at α = 0.05 → 1.645; left-tailed → −1.645. If Z falls in the rejection region, reject H₀.</p>
+  <div class="eg"><b>Example</b>A label claims μ = 500 g. A sample of n = 64 gives x̄ = 496 and s = 16. Then Z = (496 − 500)/(16/8) = −2.0. Against ±1.96 at α = 0.05, |−2.0| > 1.96, so reject: there is evidence the mean is not 500 g.</div>
+  <div class="warn"><b>Common error</b>Forgetting √n in the denominator again. Also: one- or two-tailed is decided by H<sub>a</sub>, and must be fixed before looking at the data.</div>`,
+ "8.3":`
+  <p>The <span class="k">p-value</span> is the probability of getting data as extreme as, or more extreme than, what you observed, assuming H₀ is true. A smaller p means the data look less like H₀.</p>
+  <div class="fml">p ≤ α → reject H<sub>0</sub> &nbsp;&nbsp;&nbsp; p &gt; α → do not reject</div>
+  <p>How to compute: right-tailed p = P(Z &gt; z); left-tailed p = P(Z &lt; z); <span class="k">two-tailed doubles the one-tail area</span>.</p>
+  <div class="eg"><b>Example</b>From the previous section, Z = −2.0, two-tailed: p = 2 × P(Z &lt; −2) = 2(0.0228) = 0.0456 &lt; 0.05 → reject, the same conclusion as the critical value method.</div>
+  <div class="warn"><b>Common error</b>The p-value is <span class="k">not</span> "the probability that H₀ is true", nor "the probability the conclusion is wrong". It measures how extreme the data are, computed while assuming H₀.</div>`,
+ "8.4":`
+  <p>Small n, σ unknown, population roughly normal:</p>
+  <div class="fml">T = <span class="frac"><span>x̄ − μ<sub>0</sub></span><span>s/√n</span></span> &nbsp;&nbsp; df = n − 1</div>
+  <p>The procedure is identical to the z test; you just use the t table with degrees of freedom. Smaller samples have larger critical values, so H₀ is harder to reject — which is sensible when evidence is thin.</p>
+  <div class="eg"><b>Example</b>n = 10, x̄ = 4.6, s = 0.5, H₀: μ = 5, two-tailed α = 0.05. T = (4.6 − 5)/(0.5/√10) = −2.53; the critical values at df = 9 are ±2.262, so reject.</div>`,
+ "8.5":`
+  <p>Note this: the denominator uses <span class="k">p₀ from H₀</span>, not p̂ — unlike a confidence interval.</p>
+  <div class="fml">Z = <span class="frac"><span>p̂ − p<sub>0</sub></span><span>√(p<sub>0</sub>(1 − p<sub>0</sub>)/n)</span></span></div>
+  <p>Conditions: np₀ ≥ 10 and n(1 − p₀) ≥ 10.</p>
+  <div class="eg"><b>Example</b>A claim says the pass rate is p₀ = 0.90. Of 200 items, 170 pass, so p̂ = 0.85. Z = (0.85 − 0.90)/√(0.9·0.1/200) = −0.05/0.0212 = −2.36, left-tail p ≈ 0.009 → reject.</div>
+  <div class="warn"><b>Common error</b>Tests use p₀ in the standard error; intervals use p̂. The formulas look alike, so keep them apart.</div>`},
+ quiz:[
+ {q:"A feature of the null hypothesis H₀ is that it:",o:["always contains an equals sign","is always what the researcher wants to prove","is always one-tailed","is always false"],a:0,e:"H₀ states the default \"no difference\" position in the form of an equality; what you want to show goes in H_a.",trap:""},
+ {q:"A Type I error is:",o:["failing to reject a false H₀","rejecting a true H₀","sampling the wrong people","a calculation mistake"],a:1,e:"Convicting the innocent: H₀ was actually true but got rejected. Its probability is α.",trap:"Swapping it with the Type II error (letting the guilty go, β)."},
+ {q:"With a p-value of 0.03 and α = 0.05, the conclusion is:",o:["reject H₀","do not reject H₀","H₀ is proved true","cannot decide"],a:0,e:"p ≤ α leads to rejection: the data are unusual enough under H₀.",trap:""},
+ {q:"The correct definition of a p-value is:",o:["the probability H₀ is true","the probability the conclusion is wrong","the probability of a result this extreme or more, given H₀ is true","the probability H_a is true"],a:2,e:"The p-value is a conditional probability whose condition is that H₀ holds. It does not measure the probability of a hypothesis.",trap:"This appears on almost every exam — learn the definition exactly."},
+ {q:"For a two-tailed test with Z = 2.10, the p-value is about:",o:["0.0179","0.0358","0.9821","0.05"],a:1,e:"One tail P(Z > 2.10) = 0.0179, doubled for two tails = 0.0358.",trap:"Forgetting to double for a two-tailed test."},
+ {q:"With n = 15, σ unknown and a roughly normal population, testing μ uses:",o:["a z test","a t test with df = 15","a t test with df = 14","a chi-square test"],a:2,e:"Small sample with σ unknown means a t test, with df = n − 1 = 14.",trap:""},
+ {q:"Lowering α from 0.05 to 0.01 will:",o:["reduce Type I errors and increase Type II errors","reduce both kinds of error","reduce Type II errors","have no effect"],a:0,e:"α and β trade off; reducing both at once requires a larger sample.",trap:""},
+ {q:"When testing H₀: p = 0.9, the standard error should use:",o:["p̂","p₀ = 0.9","(p̂+p₀)/2","s"],a:1,e:"A test assumes H₀ holds, so it uses p₀ in the standard error. A confidence interval makes no such assumption and uses p̂.",trap:"Swapping the two formulas is the usual place marks are lost in proportion problems."}
+]};
+</script>
+<script>
+EN.ch[9]={blurb:"From \"one group against a standard\" to \"two groups against each other\". The key question first: independent samples or paired?",
+ fml:["Two means (large samples)","Pooled-variance t test","Paired t test","Two proportions"],
+ html:{
+ "9.1":`
+  <p>Two independent groups with n₁ and n₂ both at least 30:</p>
+  <div class="fml"><span class="lbl">confidence interval</span>(x̄<sub>1</sub> − x̄<sub>2</sub>) ± z<sub>α/2</sub> √(<span class="frac"><span>s<sub>1</sub>²</span><span>n<sub>1</sub></span></span> + <span class="frac"><span>s<sub>2</sub>²</span><span>n<sub>2</sub></span></span>)
+  <br><span class="lbl" style="margin-top:8px">test statistic (H₀: μ₁ − μ₂ = 0)</span>Z = <span class="frac"><span>x̄<sub>1</sub> − x̄<sub>2</sub></span><span>√(s<sub>1</sub>²/n<sub>1</sub> + s<sub>2</sub>²/n<sub>2</sub>)</span></span></div>
+  <p>The two variances <span class="k">add</span>, even though you are looking at a difference. Reason: when independent random variables are subtracted, their variability accumulates rather than cancels.</p>
+  <div class="eg"><b>Reading it</b>If the 95% interval contains 0, there is no evidence of a difference at α = 0.05.</div>`,
+ "9.2":`
+  <p>With small samples, roughly normal populations, and equal variances assumed, pool the two standard deviations first:</p>
+  <div class="fml">s<sub>p</sub>² = <span class="frac"><span>(n<sub>1</sub> − 1)s<sub>1</sub>² + (n<sub>2</sub> − 1)s<sub>2</sub>²</span><span>n<sub>1</sub> + n<sub>2</sub> − 2</span></span>
+  <br><span class="lbl" style="margin-top:8px">test statistic</span>T = <span class="frac"><span>x̄<sub>1</sub> − x̄<sub>2</sub></span><span>s<sub>p</sub>√(1/n<sub>1</sub> + 1/n<sub>2</sub>)</span></span> &nbsp; df = n<sub>1</sub> + n<sub>2</sub> − 2</div>
+  <div class="warn"><b>Common error</b>Writing df as n₁ + n₂ − 1. The pooled variance is a weighted average with the degrees of freedom as weights, not simply (s₁² + s₂²)/2.</div>`,
+ "9.3":`
+  <p>The same subjects measured twice (before and after), or naturally matched pairs (twins, left and right hand). These groups are <span class="k">not independent</span>, so the formulas above do not apply.</p>
+  <p>The fix is simple: compute the difference d = x₁ − x₂ for each pair, then treat them as <span class="k">one single sample</span>.</p>
+  <div class="fml">T = <span class="frac"><span>d̄ − μ<sub>d</sub></span><span>s<sub>d</sub>/√n</span></span> &nbsp;&nbsp; df = n − 1, where n is the number of pairs</div>
+  <p>Why pair at all: it removes differences between individuals, so the leftover variability is smaller and the test has more power.</p>
+  <div class="warn"><b>Common error</b>Treating paired data as two independent samples inflates the degrees of freedom and distorts the result. Watch for: same person, before and after, matched.</div>`,
+ "9.4":`
+  <div class="fml"><span class="lbl">confidence interval</span>(p̂<sub>1</sub> − p̂<sub>2</sub>) ± z<sub>α/2</sub>√(<span class="frac"><span>p̂<sub>1</sub>(1−p̂<sub>1</sub>)</span><span>n<sub>1</sub></span></span> + <span class="frac"><span>p̂<sub>2</sub>(1−p̂<sub>2</sub>)</span><span>n<sub>2</sub></span></span>)
+  <br><span class="lbl" style="margin-top:8px">test (H₀: p₁ = p₂) — first pool</span>p̄ = <span class="frac"><span>x<sub>1</sub> + x<sub>2</sub></span><span>n<sub>1</sub> + n<sub>2</sub></span></span>
+  <br>Z = <span class="frac"><span>p̂<sub>1</sub> − p̂<sub>2</sub></span><span>√(p̄(1−p̄)(1/n<sub>1</sub> + 1/n<sub>2</sub>))</span></span></div>
+  <div class="warn"><b>Common error</b>The test uses the pooled p̄ (because H₀ says the two are equal); the interval uses each p̂ separately. Again: tests and intervals use different standard errors.</div>`,
+ "9.5":`
+  <p>With equal sample sizes n in both groups:</p>
+  <div class="fml"><span class="lbl">two means</span>n = <span class="frac"><span>(z<sub>α/2</sub>)²(σ<sub>1</sub>² + σ<sub>2</sub>²)</span><span>E²</span></span>
+  <br><span class="lbl" style="margin-top:8px">two proportions (most conservative)</span>n = <span class="frac"><span>(z<sub>α/2</sub>)²(0.25 + 0.25)</span><span>E²</span></span></div>
+  <p>Round up as usual. Comparing two groups costs more data than studying one, because the variability of both sides counts.</p>`},
+ quiz:[
+ {q:"When finding the standard error of a difference of two independent means, the variances are:",o:["subtracted","added","multiplied","averaged"],a:1,e:"Subtracting independent variables still adds their variances. Variability accumulates; it does not cancel.",trap:"Seeing \"difference\" and subtracting the variances."},
+ {q:"Twenty trainees are tested before and after training. Comparing the improvement calls for:",o:["an independent two-sample t test","a paired t test","a two-proportion z test","a chi-square test"],a:1,e:"The same people measured twice is a paired design: take the differences and run a one-sample t test.",trap:"Treating it as 40 independent observations and inflating the degrees of freedom."},
+ {q:"The degrees of freedom for a pooled t test are:",o:["n₁ + n₂","n₁ + n₂ − 1","n₁ + n₂ − 2","n − 1"],a:2,e:"Each group uses up one degree of freedom estimating its own mean, so subtract 2.",trap:""},
+ {q:"A 95% interval for the difference of two means is (−1.2, 3.8). The conclusion is:",o:["the groups clearly differ","there is not enough evidence that the groups differ","the first group is certainly larger","a calculation error"],a:1,e:"The interval contains 0, so a difference of zero remains plausible and H₀ is not rejected at α = 0.05.",trap:"Turning \"no evidence of a difference\" into \"proof they are the same\"."},
+ {q:"When testing H₀: p₁ = p₂, the standard error uses:",o:["each p̂ separately","the pooled proportion p̄","0.5","the value of p₁"],a:1,e:"H₀ says the two proportions are equal, so both samples are combined to estimate that common proportion.",trap:"Intervals are where each p̂ is used."},
+ {q:"The main advantage of a paired design is that it:",o:["allows a smaller sample","removes differences between individuals, lowering variability","needs no normality assumption","gives more degrees of freedom"],a:1,e:"Each subject is compared with itself, so individual differences cancel and the remaining variability is smaller, making a real effect easier to see.",trap:"Pairing actually gives fewer degrees of freedom (n − 1) in exchange for less variability."},
+ {q:"With x̄₁ = 52, x̄₂ = 48 and a standard error of 1.6, the Z for equal means is:",o:["2.5","4.0","0.4","1.6"],a:0,e:"(52 − 48)/1.6 = 2.5, two-tailed p ≈ 0.012, so reject at α = 0.05.",trap:""},
+ {q:"Which is NOT required for the large independent-sample comparison?",o:["the two samples are independent","n₁ and n₂ are both large enough","the two sample sizes must be equal","the data come from random sampling"],a:2,e:"Equal sample sizes are not needed; the formula already divides by each n separately.",trap:""}
+]};
+
+EN.ch[10]={blurb:"The relationship between two numerical variables: look at the scatter plot, compute r, then fit a line for prediction.",
+ fml:["Correlation coefficient","Regression line","Test for the slope","Coefficient of determination"],
+ html:{
+ "10.1":`
+  <p>A straight line is y = a + bx, where a is the intercept and b is the slope: each one-unit rise in x changes y by b on average.</p>
+  <p>For two numerical variables the <span class="k">first step is always the scatter diagram</span>: is the pattern straight, is the direction positive or negative, how tight is it, are there outliers?</p>
+  <div class="warn"><b>Common error</b>Computing r without looking at the plot. A curved relationship (a parabola, say) can give r ≈ 0 while the relationship is actually strong. r measures only the straight-line part.</div>`,
+ "10.2":`
+  <div class="fml">r = <span class="frac"><span>SS<sub>xy</sub></span><span>√(SS<sub>xx</sub> · SS<sub>yy</sub>)</span></span>
+  <br><span class="lbl" style="margin-top:8px">where</span>SS<sub>xy</sub> = Σxy − (Σx)(Σy)/n, SS<sub>xx</sub> = Σx² − (Σx)²/n, SS<sub>yy</sub> = Σy² − (Σy)²/n</div>
+  <p>Properties: −1 ≤ r ≤ 1; r &gt; 0 is the same direction, r &lt; 0 the opposite; the closer |r| is to 1, the tighter the points hug the line. r has no units, so changing units does not change it.</p>
+  <div class="warn"><b>Common error</b><span class="k">Correlation is not causation</span>. Two variables can move together because a third variable drives both (a lurking variable). This is the most important sentence in the chapter.</div>`,
+ "10.3":`
+  <p>Real data never sit exactly on a line, so the model is written:</p>
+  <div class="fml">y = β<sub>0</sub> + β<sub>1</sub>x + ε</div>
+  <p>β₀ and β₁ are unknown parameters (like μ), and ε is random error. The assumptions: for each x, ε has mean 0, a constant standard deviation σ, a normal distribution, and independence between observations.</p>
+  <p>We use the sample values a and b to estimate β₀ and β₁ — the same "statistic estimates parameter" pattern as before.</p>`,
+ "10.4":`
+  <p><span class="k">Least squares</span>: choose the line that makes the <span class="k">sum of squared residuals</span> as small as possible. A residual is the actual y minus the predicted ŷ.</p>
+  <div class="fml">ŷ = a + bx, &nbsp; b = <span class="frac"><span>SS<sub>xy</sub></span><span>SS<sub>xx</sub></span></span>, &nbsp; a = ȳ − b x̄</div>
+  <p>This line always passes through the point (x̄, ȳ), and its residuals add to zero.</p>
+  <div class="eg"><b>Example</b>Age of a used car x against its price y: if b = −1.2 (thousands per year), each extra year of age lowers the price by 1.2 thousand on average.</div>
+  <div class="warn"><b>Common error</b><span class="k">Extrapolation</span>: predicting for an x outside the range of the data is unreliable. With data on cars aged 1 to 10 years, do not predict the price of a 30-year-old car.</div>`,
+ "10.5":`
+  <p>To ask whether x and y really have a linear relationship, test the slope:</p>
+  <div class="fml">H<sub>0</sub>: β<sub>1</sub> = 0 &nbsp;&nbsp; T = <span class="frac"><span>b − β<sub>1</sub></span><span>s<sub>b</sub></span></span> &nbsp;&nbsp; df = n − 2
+  <br><span class="lbl" style="margin-top:8px">interval</span>b ± t<sub>α/2</sub> s<sub>b</sub></div>
+  <p>df is n − 2 because two parameters, a and b, were estimated. Rejecting H₀ says x really does help predict y.</p>`,
+ "10.6":`
+  <p><span class="k">r²</span> is the proportion of the total variation in y that the regression line (that is, x) explains.</p>
+  <div class="fml">r² = <span class="frac"><span>SS<sub>yy</sub> − SSE</span><span>SS<sub>yy</sub></span></span>, &nbsp; 0 ≤ r² ≤ 1</div>
+  <div class="eg"><b>Example</b>r = −0.8 gives r² = 0.64, so 64% of the variation is explained by x and the remaining 36% comes from other factors or randomness.</div>
+  <div class="warn"><b>Common error</b>Going back from r² to r loses the sign; take the sign from the slope b.</div>`,
+ "10.7":`
+  <p>The same ŷ supports two different intervals, with different widths:</p>
+  <ul>
+   <li><span class="k">Confidence interval for the mean</span>: estimating the average y at a given x. Narrower.</li>
+   <li><span class="k">Prediction interval</span>: predicting y for one new individual. Wider, because it adds that individual's own random variation on top of the estimation error.</li>
+  </ul>
+  <p>Both are narrowest at x = x̄ and widen as x moves away from it — another reason extrapolation is risky.</p>`},
+ quiz:[
+ {q:"r = −0.92 indicates:",o:["a strong negative linear relationship","a weak negative relationship","that x causes y to fall","a calculation error"],a:0,e:"|r| near 1 means the points lie close to a line, and the negative sign means y falls as x rises. Strength says nothing about causation.",trap:"Reading the minus sign as \"weak\"."},
+ {q:"Which statement is correct?",o:["r = 0.95 proves x causes y","a high correlation only shows they move together; a lurking variable is possible","r has units","r can exceed 1"],a:1,e:"Correlation is not causation; only a designed experiment supports causal claims. r is unitless and bounded by −1 and 1.",trap:""},
+ {q:"In ŷ = 25 − 1.5x, the −1.5 means:",o:["ŷ = −1.5 when x = 0","each one-unit rise in x lowers ŷ by 1.5 on average","the correlation coefficient","the error"],a:1,e:"The slope is the average change in ŷ per unit of x; 25 is the intercept.",trap:""},
+ {q:"Least squares minimises:",o:["the sum of the residuals","the sum of absolute residuals","the sum of squared residuals","the slope"],a:2,e:"The residuals already sum to zero, so that is useless; least squares minimises the sum of their squares.",trap:""},
+ {q:"With r = 0.6, r² and its meaning are:",o:["0.36, so 36% of the variation in y is explained by x","0.6, so 60% is explained","0.36, so the error is 36%","0.775"],a:0,e:"r² = 0.36: the regression explains 36% of the variation, and the other 64% comes from elsewhere.",trap:"Treating r itself as the proportion explained."},
+ {q:"The data range over x from 2 to 10. Predicting at x = 25 is:",o:["perfectly fine","extrapolation and unreliable","a way to raise r","a job for z"],a:1,e:"The fitted relationship is only supported inside the observed range; outside it the shape is unknown.",trap:""},
+ {q:"The degrees of freedom for testing β₁ = 0 are:",o:["n − 1","n − 2","n","n + 1"],a:1,e:"Two parameters, the intercept and the slope, were estimated, so df = n − 2.",trap:"Carrying over n − 1 from the one-sample t test."},
+ {q:"At a given x, the interval predicting one particular car's price compared with the interval for the mean price at that x is:",o:["narrower","the same width","wider","not comparable"],a:2,e:"Predicting an individual adds that individual's random variation, so the prediction interval is wider.",trap:""}
+]};
+
+EN.ch[11]={blurb:"Count data in tables, plus comparing several variances or several means at once (ANOVA).",
+ fml:["Chi-square statistic","Goodness-of-fit degrees of freedom","Test for independence","F test and ANOVA"],
+ html:{
+ "11.1":`
+  <p>The question: do the observed counts match some claimed set of proportions?</p>
+  <div class="fml">χ² = Σ <span class="frac"><span>(O − E)²</span><span>E</span></span> &nbsp;&nbsp; df = k − 1, where k is the number of categories
+  <br><span class="lbl" style="margin-top:8px">expected count</span>E = n × the proportion claimed for that category</div>
+  <p>χ² is always positive and the test is <span class="k">always right-tailed</span>: the further O is from E, the larger χ² and the stronger the case for rejecting H₀. Condition: every E is at least 5.</p>
+  <div class="eg"><b>Example</b>Roll a die 120 times. If it is fair, each face has E = 20. The further the observed counts are from 20, the larger χ² becomes.</div>
+  <div class="warn"><b>Common error</b>Putting O in the denominator instead of E, or plugging in percentages — χ² must use <span class="k">actual counts</span>.</div>`,
+ "11.2":`
+  <p>A contingency table checks whether two categorical variables are related. H₀: the two variables are independent.</p>
+  <div class="fml">E = <span class="frac"><span>row total × column total</span><span>grand total</span></span> &nbsp;&nbsp; df = (rows − 1)(columns − 1)</div>
+  <p>The statistic is still Σ(O − E)²/E and the test is still right-tailed. Rejecting H₀ says the variables are associated, but again it <span class="k">does not prove causation</span>.</p>
+  <div class="eg"><b>Example</b>A 2×3 table has df = (2−1)(3−1) = 2.</div>`,
+ "11.3":`
+  <div class="fml">F = <span class="frac"><span>s<sub>1</sub>²</span><span>s<sub>2</sub>²</span></span> &nbsp;&nbsp; df<sub>1</sub> = n<sub>1</sub> − 1 (numerator), df<sub>2</sub> = n<sub>2</sub> − 1 (denominator)</div>
+  <p>The F distribution is right-skewed, takes only positive values, and has two degrees of freedom. By convention put the larger s² on top so that F ≥ 1 and only the right-tail table is needed.</p>
+  <p>One use: checking the "equal variances" assumption behind the pooled t test in 9.2. It requires both populations to be roughly normal, and it is quite sensitive to that assumption.</p>`,
+ "11.4":`
+  <p>To compare three or more means, do not run t tests on every pair — the more tests you run, the greater the chance of at least one Type I error. Use <span class="k">ANOVA</span> instead.</p>
+  <p>H₀: μ₁ = μ₂ = … = μ<sub>k</sub>. H<sub>a</sub>: at least one mean differs (not "all of them differ").</p>
+  <div class="fml">F = <span class="frac"><span>MST (mean square between groups)</span><span>MSE (mean square within groups)</span></span>
+  <br><span class="lbl" style="margin-top:8px">degrees of freedom</span>df<sub>1</sub> = k − 1, df<sub>2</sub> = n − k</div>
+  <p>The logic: if the groups really are alike, the variation between groups should be about the same size as the random variation within groups, giving F ≈ 1. An F clearly above 1 says the between-group differences are too large to be chance. Still a right-tailed test.</p>
+  <p>Assumptions: independent groups, roughly normal within each group, and <span class="k">roughly equal variances</span>.</p>
+  <div class="warn"><b>Common error</b>Rejecting H₀ only tells you at least one group differs. Finding out which ones requires a follow-up (post hoc) comparison.</div>`},
+ quiz:[
+ {q:"The denominator of the chi-square statistic is:",o:["the observed count O","the expected count E","n","O + E"],a:1,e:"χ² = Σ(O − E)²/E, and the denominator is always the expected count.",trap:"Writing O in the denominator is the most common calculation error here."},
+ {q:"A goodness-of-fit test with 4 categories has degrees of freedom:",o:["3","4","5","1"],a:0,e:"df = k − 1 = 3.",trap:"Applying the contingency-table formula to a goodness-of-fit test."},
+ {q:"For a 3×4 contingency table, df =",o:["12","7","6","11"],a:2,e:"(3−1)(4−1) = 6.",trap:"Using rc − 1 or r + c − 2."},
+ {q:"The rejection region of a chi-square test is in the:",o:["left tail","right tail","both tails","tail decided by H_a"],a:1,e:"χ² measures how far O is from E, is always positive, and grows with the discrepancy, so only the right tail matters.",trap:""},
+ {q:"To compare four group means, the correct approach is:",o:["six pairwise t tests","one one-way ANOVA","a chi-square test","four one-sample t tests"],a:1,e:"Repeated pairwise tests inflate the overall Type I error rate; ANOVA answers \"are they all equal\" in a single test.",trap:""},
+ {q:"Rejecting H₀ in ANOVA means:",o:["every group mean differs","at least one group differs from the others","the largest and smallest groups differ and you know which","the variances differ"],a:1,e:"The F test only says the means are not all equal; identifying which ones needs post hoc comparisons.",trap:"Claiming all groups differ."},
+ {q:"In ANOVA, an F close to 1 usually means:",o:["between-group variation far exceeds within-group variation","between-group variation is about the size of the random variation","the data are wrong","H₀ is certainly rejected"],a:1,e:"F = MST/MSE, so when between and within variation are comparable F ≈ 1 and there is no evidence of unequal means.",trap:""},
+ {q:"The shape of the F distribution is:",o:["symmetric and bell-shaped","right-skewed with positive values only","left-skewed","uniform"],a:1,e:"F is a ratio of variances, so it cannot be negative; it is right-skewed and its shape depends on two degrees of freedom.",trap:"Treating F as symmetric like t."}
+]};
+</script>
+<script>
+/* ============ i18n layer ============ */
+var LN=(S.lang==="en")?"en":"zh";
+function isEN(){return LN==="en";}
+function LZ(zh,en){return isEN()?en:zh;}
+function ENC(n){return (window.EN&&EN.ch[n])||null;}
+function chTitle(ch){return isEN()?ch.en:ch.zh;}
+function chSub(ch){return isEN()?(ch.zh+" · "+ch.secs.length+" sections · "+ch.quiz.length+" questions")
+  :(ch.en+" · "+ch.secs.length+" 节 · "+ch.quiz.length+" 题");}
+function chKicker(ch){return isEN()?("Chapter "+ch.n+" · "+ch.zh):("第 "+ch.n+" 章 · "+ch.en);}
+function chBlurb(ch){var e=ENC(ch.n);return (isEN()&&e&&e.blurb)?e.blurb:ch.blurb;}
+function secTitle(n,s){return isEN()?s.en:s.t;}
+function secSub(n,s){return isEN()?s.t:s.en;}
+function secHtml(n,s){var e=ENC(n);return (isEN()&&e&&e.html&&e.html[s.no])?e.html[s.no]:s.html;}
+function QT(ch,i,k){var e=ENC(ch.n);
+  if(isEN()&&e&&e.quiz&&e.quiz[i]&&e.quiz[i][k]!=null)return e.quiz[i][k];
+  return ch.quiz[i][k];}
+function fmlTitle(ch,i,f){var e=ENC(ch.n);return (isEN()&&e&&e.fml&&e.fml[i])?e.fml[i]:f.t;}
+
+var UI={
+ zh:{toc:"目录",readCount:function(d,t){return d+" / "+t+" 节已读";},
+   resume:function(c){return '接着读 · <b>第 '+c.n+' 章 '+c.zh+'</b>';},
+   markDone:function(no){return "标记学完 "+no;},marked:function(no){return "已学完 "+no;},
+   quizStart:function(k){return "做本章练习 · "+k+" 题";},
+   quizRedo:function(s,t){return "重做练习（最佳 "+s+"/"+t+"）";},
+   prevCh:function(n){return "← 第 "+n+" 章";},nextCh:function(n){return "第 "+n+" 章 →";},
+   backCh:function(n){return "回第 "+n+" 章";},
+   qbar:function(c,i,t){return "第 "+c+" 章 · "+i+"/"+t;},correctN:function(x){return "答对 "+x;},
+   rightMsg:"答对了。",wrongMsg:function(m){return "正确答案："+m+"。";},trapLabel:"常见陷阱",
+   nextQ:"下一题",seeScore:"看成绩",again:"再做一次",nextChapter:"下一章 →",
+   scoreMsg:function(p){return p>=80?"这一章可以过了。":(p>=60?"再复习一下错的地方。":"建议回去重读本章的讲解。");},
+   wrongList:function(a){return "做错的题：第 "+a.join("、")+" 题";},
+   fmlCh:function(ch){return "第 "+ch.n+" 章 · "+ch.zh;},goCh:function(n){return "去第 "+n+" 章";},
+   notTested:"未测",
+   meSum:function(d,t,qd,qs,qt){return "已读 "+d+"/"+t+" 节；完成 "+qd+" 章练习"+(qt?"，总分 "+qs+"/"+qt:"")+"。左边是阅读进度，右边是练习最佳成绩。";},
+   wipeAsk:"清空所有阅读进度与成绩？此动作无法复原。",
+   demoFail:"这个互动图在当前环境打不开。",
+   brand:'统计学自学台 <span>· 11 章</span>',theme:"切换深浅",lang:"EN",
+   h1:"不必一页一页读，<br>一章一章练就好。",
+   lead:"照《Beginning Statistics》（Shafer &amp; Zhang）的 11 章顺序编排：每节先看短讲解，动手玩图，再做选择题。例子都用书里那类题材。",
+   cap:"上图：一组样本的点图，绿线是样本均值 x̄，两侧虚线是 ±1 个标准差 s。",
+   foot:"内容为按该书大纲自行撰写的中文讲解与练习题，非原书译文。数学符号：x̄ 样本均值、μ 总体均值、s 样本标准差、σ 总体标准差。",
+   fmlH1:"公式速查",fmlLead:"考前只看这一页也够用。",meH1:"我的进度",wipe:"清空全部进度",
+   tabToc:"目录",tabFml:"公式",tabMe:"进度"},
+ en:{toc:"Contents",readCount:function(d,t){return d+" of "+t+" sections read";},
+   resume:function(c){return 'Resume · <b>Ch '+c.n+' · '+c.en+'</b>';},
+   markDone:function(no){return "Mark "+no+" as done";},marked:function(no){return "Done: "+no;},
+   quizStart:function(k){return "Take the quiz · "+k+" questions";},
+   quizRedo:function(s,t){return "Retake quiz (best "+s+"/"+t+")";},
+   prevCh:function(n){return "← Chapter "+n;},nextCh:function(n){return "Chapter "+n+" →";},
+   backCh:function(n){return "Back to Chapter "+n;},
+   qbar:function(c,i,t){return "Ch "+c+" · "+i+"/"+t;},correctN:function(x){return x+" correct";},
+   rightMsg:"Correct.",wrongMsg:function(m){return "Answer: "+m+".";},trapLabel:"Common trap",
+   nextQ:"Next question",seeScore:"See score",again:"Try again",nextChapter:"Next chapter →",
+   scoreMsg:function(p){return p>=80?"You can move on from this chapter.":(p>=60?"Review the ones you missed.":"Go back and reread the lessons in this chapter.");},
+   wrongList:function(a){return "Missed: question "+a.join(", ");},
+   fmlCh:function(ch){return "Chapter "+ch.n+" · "+ch.en;},goCh:function(n){return "Go to Chapter "+n;},
+   notTested:"not taken",
+   meSum:function(d,t,qd,qs,qt){return d+" of "+t+" sections read; "+qd+" chapter quizzes done"+(qt?", total "+qs+"/"+qt:"")+". Left is reading progress, right is your best quiz score.";},
+   wipeAsk:"Clear all reading progress and scores? This cannot be undone.",
+   demoFail:"This interactive figure cannot run here.",
+   brand:'Beginning Statistics <span>· 11 chapters</span>',theme:"Light / dark",lang:"中文",
+   h1:"Stop reading page by page.<br>Work through it chapter by chapter.",
+   lead:"Arranged in the 11-chapter order of <em>Beginning Statistics</em> (Shafer &amp; Zhang): a short lesson per section, an interactive figure to play with, then multiple-choice questions. The examples use the same kinds of settings as the book.",
+   cap:"Above: a dot plot of one sample. The green line is the sample mean x̄; the dashed lines mark ±1 standard deviation s.",
+   foot:"The lessons and questions were written to follow the book's outline; they are not the book's own text. Symbols: x̄ sample mean, μ population mean, s sample standard deviation, σ population standard deviation.",
+   fmlH1:"Formula sheet",fmlLead:"Enough on its own for a last look before an exam.",meH1:"My progress",wipe:"Clear all progress",
+   tabToc:"Contents",tabFml:"Formulas",tabMe:"Progress"}
+};
+function U(k){var v=UI[LN][k];
+  if(typeof v==="function")return v.apply(null,Array.prototype.slice.call(arguments,1));
+  return v==null?k:v;}
+
+/* demo label translation (text nodes only, so handlers survive) */
+var DT={
+ "拖动数据点":"Drag the data points",
+ "按住圆点左右拖，看 x̄、中位数、s 怎么变。把一点拖到很远，就明白为什么中位数比较稳。":
+  "Drag a dot left or right and watch x̄, the median and s change. Pull one far away to see why the median is the steadier measure.",
+ "复原":"Reset","加一个离群值":"Add an outlier","中位数":"median",
+ "两颗骰子的样本空间":"Sample space for two dice",
+ "36 种等可能结果。选一个事件，看它盖住几格。":"36 equally likely outcomes. Pick an event and see how many cells it covers.",
+ "和 = 7":"sum = 7","和 ≥ 9":"sum ≥ 9","至少一个 6":"at least one 6","两颗相同":"both the same",
+ "有利结果":"favourable outcomes",
+ "二项分布的形状":"Shape of the binomial distribution",
+ "调 n 和 p，看分布怎么从偏斜变成钟形。":"Change n and p to see the shape go from skewed to bell-like.",
+ "标准正态曲线下的面积":"Area under the standard normal curve",
+ "拖动两条竖线，阴影面积就是概率。先看图再查表，不容易做反。":
+  "Drag the two vertical lines; the shaded area is the probability. Sketch first, then use the table, and you will not reverse it.",
+ "左尾 P(Z<z)":"left tail P(Z<z)","中间":"middle","右尾 P(Z>z)":"right tail P(Z>z)","95% 区间":"95% band",
+ "面积 =":"area =",
+ "中心极限定理":"The Central Limit Theorem",
+ "总体再怎么歪，只要 n 够大，x̄ 的分布都会变钟形。":
+  "However skewed the population is, once n is large enough the distribution of x̄ turns bell-shaped.",
+ "均匀总体":"uniform population","右偏总体":"right-skewed","双峰总体":"bimodal",
+ "每次抽 n =":"sample size n =","抽 1 次":"Draw 1","抽 300 次":"Draw 300","清空":"Clear",
+ "已抽":"drawn","个 x̄":"sample means","x̄ 的平均":"mean of x̄","实测标准差":"observed SD","理论 σ/√n":"theory σ/√n",
+ "95% 到底在说什么":"What 95% actually means",
+ "总体 μ = 50（绿线）。每条横线是一次抽样做出的 95% 区间；红色的那些没盖住 μ。":
+  "The population μ is 50 (green line). Each horizontal line is one sample's 95% interval; the red ones miss μ.",
+ "再抽 20 组":"Draw 20 more","区间数":"intervals","盖住 μ":"contain μ","实际覆盖率":"actual coverage",
+ "p 值是哪一块面积":"Which area the p-value is",
+ "拖 z 值，看尾部面积怎么变。α = 0.05 时，阴影小于 5% 就拒绝 H₀。":
+  "Drag z and watch the tail area. At α = 0.05, reject H₀ once the shaded area drops below 5%.",
+ "右尾":"right tail","左尾":"left tail","双尾":"two tails","p 值":"p-value",
+ "最小二乘线":"The least squares line",
+ "拖动任何一点，直线会跟着变。打开残差方块，就看得到\"平方和最小\"在最小什么。":
+  "Drag any point and the line follows. Turn on the residual squares to see what \"least squares\" is minimising.",
+ "显示/隐藏残差方块":"Show / hide residual squares",
+ "算一次 χ²":"Compute a χ² by hand",
+ "掷 120 次骰子。改观察次数（合计会自动重算期望），看 χ² 怎么长大。":
+  "120 rolls of a die. Change the observed counts (the expected counts follow the new total) and watch χ² grow.",
+ "点数":"face","观察 O":"observed O","期望 E":"expected E",
+ "df = 5，临界值 11.07":"df = 5, critical value 11.07"
+};
+function trDemo(box){
+  if(!isEN()||!box)return;
+  var w=document.createTreeWalker(box,NodeFilter.SHOW_TEXT,null,false),n,list=[];
+  while((n=w.nextNode()))list.push(n);
+  list.forEach(function(t){var k=t.nodeValue.trim();if(k&&DT[k])t.nodeValue=t.nodeValue.replace(k,DT[k]);});
+}
+
+/* chrome */
+function applyChrome(){
+  document.documentElement.setAttribute("lang",isEN()?"en":"zh");
+  $(".brand").innerHTML=U("brand");
+  $("#themeBtn").textContent=U("theme");
+  $("#langBtn").textContent=U("lang");
+  $("#v-home .hero h1").innerHTML=U("h1");
+  $("#v-home .hero p").innerHTML=U("lead");
+  $(".hero-cap").innerHTML=U("cap");
+  $("#v-home .sec-head h2").textContent=U("toc");
+  $(".foot").innerHTML=U("foot");
+  $("#v-fml .hero h1").textContent=U("fmlH1");
+  $("#v-fml .hero p").textContent=U("fmlLead");
+  $("#v-me .hero h1").textContent=U("meH1");
+  $("#wipeBtn").textContent=U("wipe");
+  var map={home:"tabToc",fml:"tabFml",me:"tabMe"},ic={home:"☰",fml:"∑",me:"◔"};
+  document.querySelectorAll(".tab").forEach(function(t){var g=t.getAttribute("data-go");
+    t.innerHTML="<b>"+ic[g]+"</b>"+U(map[g]);});
+}
+(function(){
+  var b=el("button","top-btn",U("lang"));b.id="langBtn";
+  b.style.marginLeft="auto";$("#themeBtn").style.marginLeft="8px";
+  $("#themeBtn").parentNode.insertBefore(b,$("#themeBtn"));
+  b.onclick=function(){LN=isEN()?"zh":"en";S.lang=LN;save();applyChrome();route();};
+})();
+applyChrome();
+route();
+</script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
