@@ -1934,8 +1934,11 @@ EN.ch[11]={blurb:"Count data in tables, plus comparing several variances or seve
 /* ============ release notes ============
    Every update adds an entry here, newest first, and bumps APP_VERSION and
    the VERSION in sw.js. After an update the app shows these notes once. */
-var APP_VERSION="1.2.0";
+var APP_VERSION="1.2.1";
 var RELEASES=[
+  {v:"1.2.1",date:"2026-10-13",notes:{
+    zh:["修好：离线资料里不会再存进载入失败的文件，网络恢复后会重新下载，不会一直显示错误"],
+    en:["Fixed: a file that failed to load is no longer saved for offline use, so it is fetched again once the connection is back instead of staying broken"]}},
   {v:"1.2.0",date:"2026-10-13",notes:{
     zh:["「我的进度」页面新增二维码和「分享 App 链接」按钮，别人扫一下就能打开",
         "显示版本号和这一版的更新日期、时间",
