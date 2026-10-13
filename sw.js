@@ -15,8 +15,9 @@ self.addEventListener("install", function (e) {
 self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
+      // 同一个网址 bryanwoo988.github.io 下还有别的 App，只能删本 App 自己的旧缓存（stats- 开头）
       return Promise.all(keys.map(function (k) {
-        return k === VERSION ? null : caches.delete(k);
+        return k.indexOf("stats-") === 0 && k !== VERSION ? caches.delete(k) : null;
       }));
     }).then(function () { return self.clients.claim(); })
   );
@@ -30,8 +31,10 @@ self.addEventListener("fetch", function (e) {
   if (req.mode === "navigate") {
     e.respondWith(
       fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(VERSION).then(function (c) { c.put("./index.html", copy); });
+        if (res.ok) {
+          var copy = res.clone();
+          caches.open(VERSION).then(function (c) { c.put("./index.html", copy); });
+        }
         return res;
       }).catch(function () {
         return caches.match("./index.html").then(function (r) {
