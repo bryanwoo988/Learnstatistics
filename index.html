@@ -849,7 +849,8 @@ BOOK.push(
 /* ============ storage ============ */
 var KEY="bstats-v1";
 var S={read:{},quiz:{},last:null,theme:null};
-try{var raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw));}catch(e){}
+var WN_NEW=true;  // no saved progress yet: a first-ever launch
+try{var raw=localStorage.getItem(KEY);if(raw){S=Object.assign(S,JSON.parse(raw));WN_NEW=false;}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 if(S.theme)document.documentElement.setAttribute("data-theme",S.theme);
 
@@ -1912,6 +1913,28 @@ EN.ch[11]={blurb:"Count data in tables, plus comparing several variances or seve
  {q:"The shape of the F distribution is:",o:["symmetric and bell-shaped","right-skewed with positive values only","left-skewed","uniform"],a:1,e:"F is a ratio of variances, so it cannot be negative; it is right-skewed and its shape depends on two degrees of freedom.",trap:"Treating F as symmetric like t."}
 ]};
 </script>
+<script src="whatsnew.js"></script>
+<script>
+/* ============ release notes ============
+   Every update adds an entry here, newest first, and bumps APP_VERSION and
+   the VERSION in sw.js. After an update the app shows these notes once. */
+var APP_VERSION="1.1.0";
+var RELEASES=[
+  {v:"1.1.0",date:"2026-10-13",notes:{
+    zh:["App 更新后会自动弹出「更新了什么」：版本号、日期和改动内容；页面底部也可以随时看全部更新记录",
+        "修好：本 App 更新时会把同一个网站上其他 App（植物生理学、圣经等）的离线资料删掉，现在只清理自己的旧资料"],
+    en:["After an update the app now shows what changed: the version, the date and what is new; the full list is at the bottom of the contents page",
+        "Fixed: updating this app deleted the offline copies of the other apps on the same site (Plant Physiology, the Bible…); it now clears only its own old files"]}},
+  {v:"1.0.0",date:"2026-09-25",notes:{
+    zh:["第一版：按 Shafer & Zhang《Beginning Statistics》编排的 11 章、46 节讲解、9 个可拖动的互动图、88 道选择题，中英双语，可离线使用"],
+    en:["First release: 11 chapters following Shafer & Zhang's Beginning Statistics, 46 lessons, 9 interactive figures, 88 multiple-choice questions, in Chinese and English, usable offline"]}}
+];
+</script>
+<script>
+WhatsNew.init({version:APP_VERSION,releases:RELEASES,key:"bstats.seenVersion",
+  lang:function(){return isEN()?"en":"zh";},
+  isNewUser:function(){return WN_NEW;}});
+</script>
 <script>
 /* ============ i18n layer ============ */
 var LN=(S.lang==="en")?"en":"zh";
@@ -2044,6 +2067,10 @@ function applyChrome(){
   $(".hero-cap").innerHTML=U("cap");
   $("#v-home .sec-head h2").textContent=U("toc");
   $(".foot").innerHTML=U("foot");
+  // Version, date and a link to every release's notes (whatsnew.js).
+  var vl=el("a",null,WhatsNew.label()+" · "+(isEN()?"What's new":"更新记录"));
+  vl.href="#";vl.onclick=function(e){e.preventDefault();WhatsNew.history();};
+  $(".foot").appendChild(document.createElement("br"));$(".foot").appendChild(vl);
   $("#v-fml .hero h1").textContent=U("fmlH1");
   $("#v-fml .hero p").textContent=U("fmlLead");
   $("#v-me .hero h1").textContent=U("meH1");

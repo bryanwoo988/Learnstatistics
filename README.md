@@ -24,12 +24,13 @@
 
 所有路径都是相对路径，所以放在子目录（`/stats/`）也能跑，不必改任何东西。
 
-## 改内容之后要做的一件事
+## 改内容之后要做的事
 
-Service worker 会把旧版本缓存起来。每次改完 `index.html`，请把 `sw.js` 第一行的版本号加一：
+1. 在 `index.html` 的 `RELEASES` 最前面加一条：版本号、日期，以及中英文的「改了什么」，并把 `APP_VERSION` 改成同一个版本号。使用者更新后，App 会弹出这些内容一次；内容页底部也可以随时看全部更新记录（`whatsnew.js`）。
+2. 把 `sw.js` 第一行的版本号加一：
 
 ```js
-var VERSION = "stats-v2";   // 原本 stats-v1
+var VERSION = "stats-v3";   // 原本 stats-v2
 ```
 
 否则使用者可能还看到旧版。
