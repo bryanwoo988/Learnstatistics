@@ -1,8 +1,8 @@
 /* 统计学自学台 — service worker
    改了 index.html 之后，把 VERSION 的数字加一，使用者下次打开就会拿到新版本。 */
-var VERSION = "stats-v2";
+var VERSION = "stats-v3";
 var ASSETS = ["./", "./index.html", "./manifest.webmanifest",
-              "./icon.svg", "./whatsnew.js", "./icon-192.png", "./icon-512.png"];
+              "./icon.svg", "./whatsnew.js", "./qr.svg", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(

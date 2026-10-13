@@ -269,6 +269,14 @@ table.tbl input{width:4.2em;font:inherit;padding:2px 4px;border:1px solid var(--
 .prow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .prow .sc{font-family:var(--serif);font-weight:600;font-feature-settings:"tnum"}
 .muted{color:var(--ink-faint);font-size:13.5px}
+.share-box{margin:28px 0 8px;padding:20px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.share-box h2{margin:0 0 6px;font-size:18px}
+.share-box .qr{width:180px;height:180px;background:#fff;padding:8px;border-radius:12px}
+.share-box p{margin:0}
+.share-box .share-url{font-size:14px;word-break:break-all;color:var(--ink-soft)}
+.share-btn{margin-top:6px;border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;background:var(--jade);color:var(--bg);cursor:pointer}
+.share-box .ver-line{margin-top:8px;font-size:14px;line-height:1.7}
+.share-box .ver-line a{color:inherit}
 .danger{background:none;border:1px solid var(--marker);color:var(--marker);
   border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:18px}
 .foot{padding:24px 0 8px;font-size:12px;color:var(--ink-faint);line-height:1.6}
@@ -319,6 +327,14 @@ table.tbl input{width:4.2em;font:inherit;padding:2px 4px;border:1px solid var(--
     </div>
     <div id="meBody"></div>
     <button class="danger" id="wipeBtn">清空全部进度</button>
+    <div class="share-box">
+      <h2 id="shareH">分享这个 App</h2>
+      <img class="qr" src="qr.svg" alt="QR" width="180" height="180">
+      <p class="muted" id="shareScan">用手机相机扫描即可打开</p>
+      <p class="share-url">bryanwoo988.github.io/Learnstatistics/</p>
+      <button class="share-btn" id="shareBtn">分享 App 链接</button>
+      <p class="muted ver-line"><span id="verLine"></span><br><a href="#" id="verHistory">更新记录</a></p>
+    </div>
   </div></section>
 </main>
 
@@ -1918,8 +1934,15 @@ EN.ch[11]={blurb:"Count data in tables, plus comparing several variances or seve
 /* ============ release notes ============
    Every update adds an entry here, newest first, and bumps APP_VERSION and
    the VERSION in sw.js. After an update the app shows these notes once. */
-var APP_VERSION="1.1.0";
+var APP_VERSION="1.2.0";
 var RELEASES=[
+  {v:"1.2.0",date:"2026-10-13",notes:{
+    zh:["「我的进度」页面新增二维码和「分享 App 链接」按钮，别人扫一下就能打开",
+        "显示版本号和这一版的更新日期、时间",
+        "App 开着的时候如果有新版本，会出现提示，可以选择「立即更新」或「稍后」"],
+    en:["The My progress page now has a QR code and a \u201cShare the app link\u201d button, so others can open the app with one scan",
+        "The version is shown with the date and time of this update",
+        "If a new version comes out while the app is open, a bar offers \u201cUpdate now\u201d or \u201cLater\u201d"]}},
   {v:"1.1.0",date:"2026-10-13",notes:{
     zh:["App 更新后会自动弹出「更新了什么」：版本号、日期和改动内容；页面底部也可以随时看全部更新记录",
         "修好：本 App 更新时会把同一个网站上其他 App（植物生理学、圣经等）的离线资料删掉，现在只清理自己的旧资料"],
@@ -1934,6 +1957,17 @@ var RELEASES=[
 WhatsNew.init({version:APP_VERSION,releases:RELEASES,key:"bstats.seenVersion",
   lang:function(){return isEN()?"en":"zh";},
   isNewUser:function(){return WN_NEW;}});
+// A newer build on the server while the app is open: offer it.
+WhatsNew.watch();
+var APP_URL="https://bryanwoo988.github.io/Learnstatistics/";
+document.addEventListener("click",function(e){
+  if(e.target.closest("#verHistory")){e.preventDefault();WhatsNew.history();}
+  if(!e.target.closest("#shareBtn"))return;
+  if(navigator.share){navigator.share({title:document.title,url:APP_URL}).catch(function(){});return;}
+  var done=function(){var b=document.getElementById("shareBtn"),t=b.textContent;b.textContent=U("copied");setTimeout(function(){b.textContent=t;},1800);};
+  if(navigator.clipboard)navigator.clipboard.writeText(APP_URL).then(done,function(){prompt("",APP_URL);});
+  else prompt("",APP_URL);
+});
 </script>
 <script>
 /* ============ i18n layer ============ */
@@ -1977,7 +2011,7 @@ var UI={
    lead:"照《Beginning Statistics》（Shafer &amp; Zhang）的 11 章顺序编排：每节先看短讲解，动手玩图，再做选择题。例子都用书里那类题材。",
    cap:"上图：一组样本的点图，绿线是样本均值 x̄，两侧虚线是 ±1 个标准差 s。",
    foot:"内容为按该书大纲自行撰写的中文讲解与练习题，非原书译文。数学符号：x̄ 样本均值、μ 总体均值、s 样本标准差、σ 总体标准差。",
-   fmlH1:"公式速查",fmlLead:"考前只看这一页也够用。",meH1:"我的进度",wipe:"清空全部进度",
+   fmlH1:"公式速查",fmlLead:"考前只看这一页也够用。",meH1:"我的进度",wipe:"清空全部进度",shareH:"分享这个 App",shareScan:"用手机相机扫描即可打开",shareBtn:"分享 App 链接",copied:"链接已复制",ver:"版本",hist:"更新记录",
    tabToc:"目录",tabFml:"公式",tabMe:"进度"},
  en:{toc:"Contents",readCount:function(d,t){return d+" of "+t+" sections read";},
    resume:function(c){return 'Resume · <b>Ch '+c.n+' · '+c.en+'</b>';},
@@ -2001,7 +2035,7 @@ var UI={
    lead:"Arranged in the 11-chapter order of <em>Beginning Statistics</em> (Shafer &amp; Zhang): a short lesson per section, an interactive figure to play with, then multiple-choice questions. The examples use the same kinds of settings as the book.",
    cap:"Above: a dot plot of one sample. The green line is the sample mean x̄; the dashed lines mark ±1 standard deviation s.",
    foot:"The lessons and questions were written to follow the book's outline; they are not the book's own text. Symbols: x̄ sample mean, μ population mean, s sample standard deviation, σ population standard deviation.",
-   fmlH1:"Formula sheet",fmlLead:"Enough on its own for a last look before an exam.",meH1:"My progress",wipe:"Clear all progress",
+   fmlH1:"Formula sheet",fmlLead:"Enough on its own for a last look before an exam.",meH1:"My progress",wipe:"Clear all progress",shareH:"Share this app",shareScan:"Scan with a phone camera to open",shareBtn:"Share the app link",copied:"Link copied",ver:"Version",hist:"What's new",
    tabToc:"Contents",tabFml:"Formulas",tabMe:"Progress"}
 };
 function U(k){var v=UI[LN][k];
@@ -2075,6 +2109,9 @@ function applyChrome(){
   $("#v-fml .hero p").textContent=U("fmlLead");
   $("#v-me .hero h1").textContent=U("meH1");
   $("#wipeBtn").textContent=U("wipe");
+  $("#shareH").textContent=U("shareH");$("#shareScan").textContent=U("shareScan");
+  $("#shareBtn").textContent=U("shareBtn");$("#verHistory").textContent=U("hist");
+  $("#verLine").textContent=U("ver")+" "+WhatsNew.label(RELEASES);
   var map={home:"tabToc",fml:"tabFml",me:"tabMe"},ic={home:"☰",fml:"∑",me:"◔"};
   document.querySelectorAll(".tab").forEach(function(t){var g=t.getAttribute("data-go");
     t.innerHTML="<b>"+ic[g]+"</b>"+U(map[g]);});
